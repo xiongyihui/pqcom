@@ -14,6 +14,10 @@ from PySide.QtCore import *
 script_path = os.path.dirname(os.path.realpath(sys.argv[0]))
 worker = None
 
+def resource_path(relative_path):
+    base_path = getattr(sys, '_MEIPASS', script_path)
+    return os.path.join(base_path, relative_path)
+
 class SetupDialog(QDialog, Ui_Dialog):
     def __init__(self, parent=None):
         super(SetupDialog, self).__init__(parent)
@@ -59,10 +63,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.setupUi(self)
         
         self.setupDialog = SetupDialog(self)
-        self.actionNew.setIcon(QIcon(os.path.join(script_path, 'img', 'new.png')))
-        self.actionSetup.setIcon(QIcon(os.path.join(script_path, 'img', 'setup.png')))
-        self.actionRun.setIcon(QIcon(os.path.join(script_path, 'img', 'run.png')))
-        self.actionHex.setIcon(QIcon(os.path.join(script_path, 'img', 'hex.png')))
+        self.actionNew.setIcon(QIcon(resource_path('img/new.png')))
+        self.actionSetup.setIcon(QIcon(resource_path('img/setup.png')))
+        self.actionRun.setIcon(QIcon(resource_path('img/run.png')))
+        self.actionHex.setIcon(QIcon(resource_path('img/hex.png')))
         
         self.sendButton.clicked.connect(self.send)
         self.actionSetup.triggered.connect(self.setup)
