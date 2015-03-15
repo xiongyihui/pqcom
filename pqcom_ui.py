@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'pqcom.ui'
 #
-# Created: Sat Mar 14 19:35:57 2015
+# Created: Sun Mar 15 19:03:13 2015
 #      by: pyside-uic 0.2.15 running on PySide 1.2.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -37,9 +37,9 @@ class Ui_MainWindow(object):
         self.horizontalLayout = QtGui.QHBoxLayout()
         self.horizontalLayout.setSpacing(0)
         self.horizontalLayout.setObjectName("horizontalLayout")
-        self.radioButton = QtGui.QRadioButton(self.centralwidget)
-        self.radioButton.setObjectName("radioButton")
-        self.horizontalLayout.addWidget(self.radioButton)
+        self.normalRadioButton = QtGui.QRadioButton(self.centralwidget)
+        self.normalRadioButton.setObjectName("normalRadioButton")
+        self.horizontalLayout.addWidget(self.normalRadioButton)
         self.hexRadioButton = QtGui.QRadioButton(self.centralwidget)
         self.hexRadioButton.setObjectName("hexRadioButton")
         self.horizontalLayout.addWidget(self.hexRadioButton)
@@ -56,14 +56,42 @@ class Ui_MainWindow(object):
         self.horizontalLayout.addWidget(self.sendButton)
         self.verticalLayout.addLayout(self.horizontalLayout)
         MainWindow.setCentralWidget(self.centralwidget)
+        self.toolBar = QtGui.QToolBar(MainWindow)
+        self.toolBar.setAutoFillBackground(False)
+        self.toolBar.setMovable(False)
+        self.toolBar.setAllowedAreas(QtCore.Qt.TopToolBarArea)
+        self.toolBar.setFloatable(False)
+        self.toolBar.setObjectName("toolBar")
+        MainWindow.addToolBar(QtCore.Qt.TopToolBarArea, self.toolBar)
+        self.actionSetup = QtGui.QAction(MainWindow)
+        self.actionSetup.setObjectName("actionSetup")
+        self.actionNew = QtGui.QAction(MainWindow)
+        self.actionNew.setObjectName("actionNew")
+        self.actionHex = QtGui.QAction(MainWindow)
+        self.actionHex.setCheckable(True)
+        self.actionHex.setVisible(True)
+        self.actionHex.setObjectName("actionHex")
+        self.actionRun = QtGui.QAction(MainWindow)
+        self.actionRun.setCheckable(True)
+        self.actionRun.setObjectName("actionRun")
+        self.toolBar.addAction(self.actionNew)
+        self.toolBar.addAction(self.actionSetup)
+        self.toolBar.addAction(self.actionRun)
+        self.toolBar.addAction(self.actionHex)
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(QtGui.QApplication.translate("MainWindow", "pqcom", None, QtGui.QApplication.UnicodeUTF8))
-        self.radioButton.setText(QtGui.QApplication.translate("MainWindow", "Normal", None, QtGui.QApplication.UnicodeUTF8))
+        self.normalRadioButton.setText(QtGui.QApplication.translate("MainWindow", "Normal", None, QtGui.QApplication.UnicodeUTF8))
         self.hexRadioButton.setText(QtGui.QApplication.translate("MainWindow", "Hex", None, QtGui.QApplication.UnicodeUTF8))
         self.extendRadioButton.setText(QtGui.QApplication.translate("MainWindow", "Extend", None, QtGui.QApplication.UnicodeUTF8))
         self.sendButton.setText(QtGui.QApplication.translate("MainWindow", "Send", None, QtGui.QApplication.UnicodeUTF8))
+        self.toolBar.setWindowTitle(QtGui.QApplication.translate("MainWindow", "toolBar", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionSetup.setText(QtGui.QApplication.translate("MainWindow", "Setup", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionNew.setText(QtGui.QApplication.translate("MainWindow", "New", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionHex.setText(QtGui.QApplication.translate("MainWindow", "Hex", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionRun.setText(QtGui.QApplication.translate("MainWindow", "Run", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionRun.setToolTip(QtGui.QApplication.translate("MainWindow", "Run", None, QtGui.QApplication.UnicodeUTF8))
 
