@@ -50,8 +50,8 @@ class SetupDialog(QDialog, Ui_Dialog):
         self.portComboBox.clear()
         for port in list_ports.comports():
             name = port[0]
-            if name.startswith('/dev/ttyACM') or name.startswith('/dev/ttyUSB') or name.startswith('com'):
-                self.portComboBox.addItem(port[0])
+            if name.startswith('/dev/ttyACM') or name.startswith('/dev/ttyUSB') or name.startswith('COM'):
+                self.portComboBox.addItem(name)
                 
     def get(self):
         port = str(self.portComboBox.currentText())
@@ -66,6 +66,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self, parent=None):
         super(MainWindow, self).__init__(parent)
         self.setupUi(self)
+        
+        self.setWindowIcon(QIcon(resource_path('img/pqcom-logo.png')))
         
         self.setupDialog = SetupDialog(self)
         self.actionNew.setIcon(QIcon(resource_path('img/new.png')))
@@ -105,14 +107,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def setup(self):
         choice = self.setupDialog.exec_()
         if choice == QDialog.Accepted:
-            parameters = self.setupDialog.get()
-            worker.start(parameters)
+            # parameters = self.setupDialog.get()
+            # worker.start(parameters)
             self.actionRun.setChecked(True)
         else:
             print('close')
             
     def run(self, is_true):
-        print(is_true)
         if is_true:
             parameters = self.setupDialog.get()
             worker.start(parameters)

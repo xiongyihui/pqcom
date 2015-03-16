@@ -1,7 +1,7 @@
-pqcom
-=====
+![pqcom](img/pqcom-logo-expanded.png)
+====
 
-serial tool for Linux/Windows/Mac, written by python and qt (pyside)
+A serial tool for Linux/Windows/Mac, written by python and qt (pyside)
 
 ![pqcom](img/pqcom.png)
 
@@ -25,4 +25,3 @@ serial tool for Linux/Windows/Mac, written by python and qt (pyside)
 -	Windows
 
 	Go to [release channel](https://github.com/xiongyihui/pqcom/releases), download the executable file.
-
