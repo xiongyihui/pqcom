@@ -11,6 +11,11 @@ from pqcom_setup_ui import *
 from PySide.QtGui import *
 from PySide.QtCore import *
 
+NORMAL_STRING = 0
+HEX_STRING = 1
+EXTEND_STRING = 2
+
+
 script_path = os.path.dirname(os.path.realpath(sys.argv[0]))
 worker = None
 
@@ -74,8 +79,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.actionRun.toggled.connect(self.run)
         
         self.actionHex.setVisible(False)
-        self.normalRadioButton.setVisible(False)
-        self.hexRadioButton.setVisible(False)
         self.extendRadioButton.setVisible(False)
         
     def new(self):
@@ -84,7 +87,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         
     def send(self):
         data = str(self.sendPlainTextEdit.toPlainText())
-        worker.put(data, 0);
+        datatype = NORMAL_STRING
+        if self.normalRadioButton.isChecked():
+            pass
+        elif self.hexRadioButton.isChecked():
+            datatype = HEX_STRING
+        else:
+            datatype = EXTEND_STRING
+            
+        worker.put(data, datatype);
         
     def handle(self):
         self.actionRun.setChecked(False)
@@ -175,6 +186,12 @@ class Worker(QObject):
         while not self.stopevent.is_set():
             try:
                 data, datatype = self.txqueue.get(True, 1)
+                if datatype == HEX_STRING:
+                    data = str(bytearray.fromhex(data))
+                elif datatype == EXTEND_STRING:
+                    # to do
+                    pass
+                    
                 print('tx:' + data)
                 self.serial.write(data)
             except Queue.Empty:

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'pqcom.ui'
 #
-# Created: Sun Mar 15 19:03:13 2015
+# Created: Mon Mar 16 00:57:07 2015
 #      by: pyside-uic 0.2.15 running on PySide 1.2.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -38,6 +38,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout.setSpacing(0)
         self.horizontalLayout.setObjectName("horizontalLayout")
         self.normalRadioButton = QtGui.QRadioButton(self.centralwidget)
+        self.normalRadioButton.setChecked(True)
         self.normalRadioButton.setObjectName("normalRadioButton")
         self.horizontalLayout.addWidget(self.normalRadioButton)
         self.hexRadioButton = QtGui.QRadioButton(self.centralwidget)
