@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file 'pqcom.ui'
 #
-# Created: Mon Mar 16 00:57:07 2015
-#      by: pyside-uic 0.2.15 running on PySide 1.2.1
+# Created: Fri Mar 20 19:17:54 2015
+#      by: pyside-uic 0.2.15 running on PySide 1.2.2
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -49,10 +49,10 @@ class Ui_MainWindow(object):
         self.horizontalLayout.addWidget(self.extendRadioButton)
         spacerItem = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
         self.horizontalLayout.addItem(spacerItem)
-        self.sendButton = QtGui.QPushButton(self.centralwidget)
-        self.sendButton.setAutoDefault(False)
-        self.sendButton.setDefault(False)
-        self.sendButton.setFlat(False)
+        self.sendButton = QtGui.QToolButton(self.centralwidget)
+        self.sendButton.setPopupMode(QtGui.QToolButton.MenuButtonPopup)
+        self.sendButton.setToolButtonStyle(QtCore.Qt.ToolButtonTextUnderIcon)
+        self.sendButton.setAutoRaise(True)
         self.sendButton.setObjectName("sendButton")
         self.horizontalLayout.addWidget(self.sendButton)
         self.verticalLayout.addLayout(self.horizontalLayout)
@@ -75,10 +75,13 @@ class Ui_MainWindow(object):
         self.actionRun = QtGui.QAction(MainWindow)
         self.actionRun.setCheckable(True)
         self.actionRun.setObjectName("actionRun")
+        self.actionAbout = QtGui.QAction(MainWindow)
+        self.actionAbout.setObjectName("actionAbout")
         self.toolBar.addAction(self.actionNew)
-        self.toolBar.addAction(self.actionSetup)
         self.toolBar.addAction(self.actionRun)
+        self.toolBar.addAction(self.actionSetup)
         self.toolBar.addAction(self.actionHex)
+        self.toolBar.addAction(self.actionAbout)
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
@@ -95,4 +98,5 @@ class Ui_MainWindow(object):
         self.actionHex.setText(QtGui.QApplication.translate("MainWindow", "Hex", None, QtGui.QApplication.UnicodeUTF8))
         self.actionRun.setText(QtGui.QApplication.translate("MainWindow", "Run", None, QtGui.QApplication.UnicodeUTF8))
         self.actionRun.setToolTip(QtGui.QApplication.translate("MainWindow", "Run", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionAbout.setText(QtGui.QApplication.translate("MainWindow", "About", None, QtGui.QApplication.UnicodeUTF8))
 

@@ -7,7 +7,8 @@ import Queue
 import serial
 from serial.tools import list_ports
 from pqcom_ui import *
-from pqcom_setup_ui import *
+import pqcom_setup_ui
+import pqcom_about_ui
 from PySide.QtGui import *
 from PySide.QtCore import *
 
@@ -22,36 +23,43 @@ worker = None
 def resource_path(relative_path):
     base_path = getattr(sys, '_MEIPASS', script_path)
     return os.path.join(base_path, relative_path)
+    
+class AboutDialog(QDialog, pqcom_about_ui.Ui_Dialog):
+    def __init__(self, parent=None):
+        super(AboutDialog, self).__init__(parent)
+        self.setupUi(self)
 
-class SetupDialog(QDialog, Ui_Dialog):
+class SetupDialog(QDialog, pqcom_setup_ui.Ui_Dialog):
     def __init__(self, parent=None):
         super(SetupDialog, self).__init__(parent)
         self.setupUi(self)
         
+        self.ports = list_ports.comports()
         self.originalPalette = self.portComboBox.palette()
         
-        self.hasError = False
         self.refresh()
         
         self.portComboBox.clicked.connect(self.refresh)
-        
-    def setErrorHint(self):
-        self.hasError = True
-        p = self.portComboBox.palette()
-        p.setColor(QPalette.Text, QColor(255, 0, 0))
-        self.portComboBox.setPalette(p)
-        
-    def clearErrorHint(self):
-        if self.hasError:
+            
+    def show(self, hasError=False):
+        if hasError:
+            p = self.portComboBox.palette()
+            p.setColor(QPalette.Text, QColor(255, 0, 0))
+            self.portComboBox.setPalette(p)
+        else:
             self.portComboBox.setPalette(self.originalPalette)
+            self.refresh()
+            
+        return self.exec_()
                 
     def refresh(self):
-        self.clearErrorHint()
-        self.portComboBox.clear()
-        for port in list_ports.comports():
-            name = port[0]
-            if name.startswith('/dev/ttyACM') or name.startswith('/dev/ttyUSB') or name.startswith('COM'):
-                self.portComboBox.addItem(name)
+        ports = list_ports.comports()
+        if ports != self.ports:
+            self.portComboBox.clear()
+            for port in list_ports.comports():
+                name = port[0]
+                if name.startswith('/dev/ttyACM') or name.startswith('/dev/ttyUSB') or name.startswith('COM'):
+                    self.portComboBox.addItem(name)
                 
     def get(self):
         port = str(self.portComboBox.currentText())
@@ -69,16 +77,30 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         
         self.setWindowIcon(QIcon(resource_path('img/pqcom-logo.png')))
         
+        self.aboutDialog = AboutDialog(self)
+        
         self.setupDialog = SetupDialog(self)
         self.actionNew.setIcon(QIcon(resource_path('img/new.png')))
         self.actionSetup.setIcon(QIcon(resource_path('img/setup.png')))
         self.actionRun.setIcon(QIcon(resource_path('img/run.png')))
         self.actionHex.setIcon(QIcon(resource_path('img/hex.png')))
+        self.actionAbout.setIcon(QIcon(resource_path('img/about.png')))
+        
+        actionEnterSend = QAction('"Enter" to send', self)
+        actionEnterSend.setCheckable(True)
+        actionCtrlEnterSend = QAction('"Ctrl + Enter" to send', self)
+        actionCtrlEnterSend.setCheckable(True)
+        popupMenu = QMenu(self)
+        popupMenu.addAction(actionEnterSend)
+        popupMenu.addAction(actionCtrlEnterSend)
+        self.sendButton.setMenu(popupMenu)
+        # self.sendButton.setIcon(QIcon(resource_path('img/run.png')))
         
         self.sendButton.clicked.connect(self.send)
         self.actionSetup.triggered.connect(self.setup)
         self.actionNew.triggered.connect(self.new)
         self.actionRun.toggled.connect(self.run)
+        self.actionAbout.triggered.connect(self.aboutDialog.show)
         
         self.actionHex.setVisible(False)
         self.extendRadioButton.setVisible(False)
@@ -101,11 +123,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         
     def handle(self):
         self.actionRun.setChecked(False)
-        self.setupDialog.setErrorHint()
-        self.setup()
+        self.setup(True)
         
-    def setup(self):
-        choice = self.setupDialog.exec_()
+    def setup(self, hasError=False):
+        choice = self.setupDialog.show(hasError)
         if choice == QDialog.Accepted:
             # parameters = self.setupDialog.get()
             # worker.start(parameters)
@@ -114,11 +135,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             print('close')
             
     def run(self, is_true):
+        parameters = self.setupDialog.get()
         if is_true:
-            parameters = self.setupDialog.get()
             worker.start(parameters)
+            self.setWindowTitle('pqcom - ' + parameters[0] + ' ' + str(parameters[1]) + ' opened')
         else:
             worker.join()
+            self.setWindowTitle('pqcom - ' + parameters[0] + ' ' + str(parameters[1]) + ' closed')
 
     def display(self, text):
         # self.recvTextEdit.append(text)

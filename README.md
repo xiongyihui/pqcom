@@ -1,9 +1,9 @@
 ![pqcom](img/pqcom-logo-expanded.png)
 ====
 
-A serial tool for Linux/Windows/Mac, written by python and qt (pyside)
+A simple serial tool for Linux/Windows/Mac. It's written by Python and Qt (PySide).
 
-![pqcom](img/pqcom.png)
+![pqcom](preview/pqcom.png)
 
 ### Requirements
 
