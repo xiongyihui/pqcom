@@ -109,6 +109,13 @@
        </spacer>
       </item>
       <item>
+       <widget class="Line" name="line_2">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QToolButton" name="sendButton">
         <property name="text">
          <string>Send</string>
@@ -154,6 +161,7 @@
    <addaction name="actionRun"/>
    <addaction name="actionSetup"/>
    <addaction name="actionHex"/>
+   <addaction name="actionClear"/>
    <addaction name="actionAbout"/>
   </widget>
   <action name="actionSetup">
@@ -191,6 +199,14 @@
   <action name="actionAbout">
    <property name="text">
     <string>About</string>
+   </property>
+  </action>
+  <action name="actionClear">
+   <property name="text">
+    <string>Clear</string>
+   </property>
+   <property name="toolTip">
+    <string>Clear</string>
    </property>
   </action>
  </widget>

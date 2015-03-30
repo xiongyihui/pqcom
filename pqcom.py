@@ -34,7 +34,7 @@ class SetupDialog(QDialog, pqcom_setup_ui.Ui_Dialog):
         super(SetupDialog, self).__init__(parent)
         self.setupUi(self)
         
-        self.ports = list_ports.comports()
+        self.ports = None
         self.originalPalette = self.portComboBox.palette()
         
         self.refresh()
@@ -47,14 +47,15 @@ class SetupDialog(QDialog, pqcom_setup_ui.Ui_Dialog):
             p.setColor(QPalette.Text, QColor(255, 0, 0))
             self.portComboBox.setPalette(p)
         else:
-            self.portComboBox.setPalette(self.originalPalette)
             self.refresh()
             
         return self.exec_()
                 
     def refresh(self):
+        self.portComboBox.setPalette(self.originalPalette)
         ports = list_ports.comports()
         if ports != self.ports:
+            self.ports = ports
             self.portComboBox.clear()
             for port in list_ports.comports():
                 name = port[0]
@@ -80,21 +81,54 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.aboutDialog = AboutDialog(self)
         
         self.setupDialog = SetupDialog(self)
-        self.actionNew.setIcon(QIcon(resource_path('img/new.png')))
-        self.actionSetup.setIcon(QIcon(resource_path('img/setup.png')))
-        self.actionRun.setIcon(QIcon(resource_path('img/run.png')))
+        self.actionNew.setIcon(QIcon(resource_path('img/new.svg')))
+        self.actionSetup.setIcon(QIcon(resource_path('img/settings.svg')))
+        self.actionRun.setIcon(QIcon(resource_path('img/run.svg')))
         self.actionHex.setIcon(QIcon(resource_path('img/hex.png')))
-        self.actionAbout.setIcon(QIcon(resource_path('img/about.png')))
+        self.actionClear.setIcon(QIcon(resource_path('img/clear.svg')))
+        self.actionAbout.setIcon(QIcon(resource_path('img/about.svg')))
         
         actionEnterSend = QAction('"Enter" to send', self)
         actionEnterSend.setCheckable(True)
         actionCtrlEnterSend = QAction('"Ctrl + Enter" to send', self)
         actionCtrlEnterSend.setCheckable(True)
+        shortcutGroup = QActionGroup(self)
+        shortcutGroup.addAction(actionEnterSend)
+        shortcutGroup.addAction(actionCtrlEnterSend)
+        shortcutGroup.setExclusive(True)
+
+        actionUseCR = QAction('EOL - \\r', self)
+        actionUseCR.setCheckable(True)
+        actionUseLF = QAction('EOL - \\n', self)
+        actionUseLF.setCheckable(True)
+        actionUseCRLF = QAction('EOL - \\r\\n', self)
+        actionUseCRLF.setCheckable(True)
+        actionUseCRLF.setChecked(True)
+        eolGroup = QActionGroup(self)
+        eolGroup.addAction(actionUseCR)
+        eolGroup.addAction(actionUseLF)
+        eolGroup.addAction(actionUseCRLF)
+        eolGroup.setExclusive(True)
+
+        actionAppendEol = QAction('Append extra EOL', self)
+        actionAppendEol.setCheckable(True)
+
+
         popupMenu = QMenu(self)
-        popupMenu.addAction(actionEnterSend)
-        popupMenu.addAction(actionCtrlEnterSend)
+        # popupMenu.addAction(actionEnterSend)
+        # popupMenu.addAction(actionCtrlEnterSend)
+        popupMenu.addAction(actionUseCR)
+        popupMenu.addAction(actionUseLF)
+        popupMenu.addAction(actionUseCRLF)
+        popupMenu.addSeparator()
+        popupMenu.addAction(actionAppendEol)
+
         self.sendButton.setMenu(popupMenu)
         # self.sendButton.setIcon(QIcon(resource_path('img/run.png')))
+
+        p = self.sendButton.palette()
+        p.setColor(QPalette.Window, QColor(255, 0, 0))
+        self.sendButton.setPalette(self.setupDialog.originalPalette)
         
         self.sendButton.clicked.connect(self.send)
         self.actionSetup.triggered.connect(self.setup)

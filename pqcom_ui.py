@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file 'pqcom.ui'
 #
-# Created: Fri Mar 20 19:17:54 2015
-#      by: pyside-uic 0.2.15 running on PySide 1.2.2
+# Created: Sun Mar 29 01:52:39 2015
+#      by: pyside-uic 0.2.14 running on PySide 1.1.2
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -20,6 +20,9 @@ class Ui_MainWindow(object):
         self.verticalLayout.setContentsMargins(0, 0, 0, 0)
         self.verticalLayout.setObjectName("verticalLayout")
         self.recvTextEdit = QtGui.QTextEdit(self.centralwidget)
+        font = QtGui.QFont()
+        font.setFamily("Droid Sans Mono")
+        self.recvTextEdit.setFont(font)
         self.recvTextEdit.setReadOnly(True)
         self.recvTextEdit.setObjectName("recvTextEdit")
         self.verticalLayout.addWidget(self.recvTextEdit)
@@ -32,6 +35,9 @@ class Ui_MainWindow(object):
         self.sendPlainTextEdit.setMinimumSize(QtCore.QSize(0, 32))
         self.sendPlainTextEdit.setMaximumSize(QtCore.QSize(16777215, 128))
         self.sendPlainTextEdit.setBaseSize(QtCore.QSize(0, 0))
+        font = QtGui.QFont()
+        font.setFamily("Droid Sans Mono")
+        self.sendPlainTextEdit.setFont(font)
         self.sendPlainTextEdit.setObjectName("sendPlainTextEdit")
         self.verticalLayout.addWidget(self.sendPlainTextEdit)
         self.horizontalLayout = QtGui.QHBoxLayout()
@@ -49,6 +55,11 @@ class Ui_MainWindow(object):
         self.horizontalLayout.addWidget(self.extendRadioButton)
         spacerItem = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
         self.horizontalLayout.addItem(spacerItem)
+        self.line_2 = QtGui.QFrame(self.centralwidget)
+        self.line_2.setFrameShape(QtGui.QFrame.VLine)
+        self.line_2.setFrameShadow(QtGui.QFrame.Sunken)
+        self.line_2.setObjectName("line_2")
+        self.horizontalLayout.addWidget(self.line_2)
         self.sendButton = QtGui.QToolButton(self.centralwidget)
         self.sendButton.setPopupMode(QtGui.QToolButton.MenuButtonPopup)
         self.sendButton.setToolButtonStyle(QtCore.Qt.ToolButtonTextUnderIcon)
@@ -77,10 +88,13 @@ class Ui_MainWindow(object):
         self.actionRun.setObjectName("actionRun")
         self.actionAbout = QtGui.QAction(MainWindow)
         self.actionAbout.setObjectName("actionAbout")
+        self.actionClear = QtGui.QAction(MainWindow)
+        self.actionClear.setObjectName("actionClear")
         self.toolBar.addAction(self.actionNew)
         self.toolBar.addAction(self.actionRun)
         self.toolBar.addAction(self.actionSetup)
         self.toolBar.addAction(self.actionHex)
+        self.toolBar.addAction(self.actionClear)
         self.toolBar.addAction(self.actionAbout)
 
         self.retranslateUi(MainWindow)
@@ -99,4 +113,6 @@ class Ui_MainWindow(object):
         self.actionRun.setText(QtGui.QApplication.translate("MainWindow", "Run", None, QtGui.QApplication.UnicodeUTF8))
         self.actionRun.setToolTip(QtGui.QApplication.translate("MainWindow", "Run", None, QtGui.QApplication.UnicodeUTF8))
         self.actionAbout.setText(QtGui.QApplication.translate("MainWindow", "About", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionClear.setText(QtGui.QApplication.translate("MainWindow", "Clear", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionClear.setToolTip(QtGui.QApplication.translate("MainWindow", "Clear", None, QtGui.QApplication.UnicodeUTF8))
 
