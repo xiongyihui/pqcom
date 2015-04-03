@@ -11,14 +11,12 @@ import pqcom_setup_ui
 import pqcom_about_ui
 from PySide.QtGui import *
 from PySide.QtCore import *
+import StringIO
 
-NORMAL_STRING = 0
-HEX_STRING = 1
-EXTEND_STRING = 2
+DEFAULT_EOF = '\n'
 
-
-script_path = os.path.dirname(os.path.realpath(sys.argv[0]))
 worker = None
+script_path = os.path.dirname(os.path.realpath(sys.argv[0]))
 
 def resource_path(relative_path):
     base_path = getattr(sys, '_MEIPASS', script_path)
@@ -87,56 +85,42 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.actionHex.setIcon(QIcon(resource_path('img/hex.png')))
         self.actionClear.setIcon(QIcon(resource_path('img/clear.svg')))
         self.actionAbout.setIcon(QIcon(resource_path('img/about.svg')))
-        
-        actionEnterSend = QAction('"Enter" to send', self)
-        actionEnterSend.setCheckable(True)
-        actionCtrlEnterSend = QAction('"Ctrl + Enter" to send', self)
-        actionCtrlEnterSend.setCheckable(True)
-        shortcutGroup = QActionGroup(self)
-        shortcutGroup.addAction(actionEnterSend)
-        shortcutGroup.addAction(actionCtrlEnterSend)
-        shortcutGroup.setExclusive(True)
 
-        actionUseCR = QAction('EOL - \\r', self)
-        actionUseCR.setCheckable(True)
-        actionUseLF = QAction('EOL - \\n', self)
-        actionUseLF.setCheckable(True)
-        actionUseCRLF = QAction('EOL - \\r\\n', self)
-        actionUseCRLF.setCheckable(True)
-        actionUseCRLF.setChecked(True)
+        self.actionUseCR = QAction('EOL - \\r', self)
+        self.actionUseCR.setCheckable(True)
+        self.actionUseLF = QAction('EOL - \\n', self)
+        self.actionUseLF.setCheckable(True)
+        self.actionUseCRLF = QAction('EOL - \\r\\n', self)
+        self.actionUseCRLF.setCheckable(True)
+        self.actionUseCRLF.setChecked(True)
         eolGroup = QActionGroup(self)
-        eolGroup.addAction(actionUseCR)
-        eolGroup.addAction(actionUseLF)
-        eolGroup.addAction(actionUseCRLF)
+        eolGroup.addAction(self.actionUseCR)
+        eolGroup.addAction(self.actionUseLF)
+        eolGroup.addAction(self.actionUseCRLF)
         eolGroup.setExclusive(True)
 
-        actionAppendEol = QAction('Append extra EOL', self)
-        actionAppendEol.setCheckable(True)
+        self.actionAppendEol = QAction('Append extra EOL', self)
+        self.actionAppendEol.setCheckable(True)
 
 
         popupMenu = QMenu(self)
-        # popupMenu.addAction(actionEnterSend)
-        # popupMenu.addAction(actionCtrlEnterSend)
-        popupMenu.addAction(actionUseCR)
-        popupMenu.addAction(actionUseLF)
-        popupMenu.addAction(actionUseCRLF)
+        popupMenu.addAction(self.actionUseCR)
+        popupMenu.addAction(self.actionUseLF)
+        popupMenu.addAction(self.actionUseCRLF)
         popupMenu.addSeparator()
-        popupMenu.addAction(actionAppendEol)
+        popupMenu.addAction(self.actionAppendEol)
 
         self.sendButton.setMenu(popupMenu)
         # self.sendButton.setIcon(QIcon(resource_path('img/run.png')))
 
-        p = self.sendButton.palette()
-        p.setColor(QPalette.Window, QColor(255, 0, 0))
-        self.sendButton.setPalette(self.setupDialog.originalPalette)
-        
         self.sendButton.clicked.connect(self.send)
         self.actionSetup.triggered.connect(self.setup)
         self.actionNew.triggered.connect(self.new)
         self.actionRun.toggled.connect(self.run)
+        self.actionClear.triggered.connect(self.recvTextEdit.clear)
         self.actionAbout.triggered.connect(self.aboutDialog.show)
         
-        self.actionHex.setVisible(False)
+        # self.actionHex.setVisible(False)
         self.extendRadioButton.setVisible(False)
         
     def new(self):
@@ -145,15 +129,20 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         
     def send(self):
         data = str(self.sendPlainTextEdit.toPlainText())
-        datatype = NORMAL_STRING
         if self.normalRadioButton.isChecked():
-            pass
+            if self.actionAppendEol.isChecked():
+                data += '\n'
+                
+            if self.actionUseCRLF.isChecked():
+                data = data.replace('\n', '\r\n')
+            elif self.actionUseCR.isChecked():
+                data = data.replace('\n', '\r')
         elif self.hexRadioButton.isChecked():
-            datatype = HEX_STRING
+            data = str(bytearray.fromhex(data))
         else:
-            datatype = EXTEND_STRING
+            pass
             
-        worker.put(data, datatype);
+        worker.put(data);
         
     def handle(self):
         self.actionRun.setChecked(False)
@@ -178,6 +167,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.setWindowTitle('pqcom - ' + parameters[0] + ' ' + str(parameters[1]) + ' closed')
 
     def display(self, text):
+        if self.actionHex.isChecked():
+            text = ' '.join('{:02X}'.format(ord(c)) for c in text)
+            
         # self.recvTextEdit.append(text)
         self.recvTextEdit.moveCursor(QTextCursor.End)
         self.recvTextEdit.insertPlainText(text)
@@ -235,21 +227,15 @@ class Worker(QObject):
             self.serial.close()
     
     @Slot(str, int)    
-    def put(self, data, datatype):
-        self.txqueue.put((data, datatype))
+    def put(self, data):
+        self.txqueue.put(data)
 
         
     def send(self):
         print('tx thread is started')
         while not self.stopevent.is_set():
             try:
-                data, datatype = self.txqueue.get(True, 1)
-                if datatype == HEX_STRING:
-                    data = str(bytearray.fromhex(data))
-                elif datatype == EXTEND_STRING:
-                    # to do
-                    pass
-                    
+                data = self.txqueue.get(True, 1)
                 print('tx:' + data)
                 self.serial.write(data)
             except Queue.Empty:
