@@ -127,8 +127,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.actionSetup.triggered.connect(self.setup)
         self.actionNew.triggered.connect(self.new)
         self.actionRun.toggled.connect(self.run)
-        self.actionClear.triggered.connect(self.recvTextEdit.clear)
+        self.actionHex.toggled.connect(self.convert)
+        self.actionClear.triggered.connect(self.clear)
         self.actionAbout.triggered.connect(self.aboutDialog.show)
+
+        QShortcut(QtGui.QKeySequence("Ctrl+Return"), self.sendPlainTextEdit, self.send)
         
         # self.actionHex.setVisible(False)
         self.extendRadioButton.setVisible(False)
@@ -148,7 +151,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             elif self.actionUseCR.isChecked():
                 data = data.replace('\n', '\r')
         elif self.hexRadioButton.isChecked():
-            data = str(bytearray.fromhex(data))
+            data = str(bytearray.fromhex(data.replace('\n', ' ')))
         else:
             pass
             
@@ -177,13 +180,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.setWindowTitle('pqcom - ' + parameters[0] + ' ' + str(parameters[1]) + ' closed')
 
     def display(self, text):
-        self.input.write(text)
+        self.input.write(text)      # store history data
+
         if self.actionHex.isChecked():
-            # text = ' '.join('{:02X}'.format(ord(c)) for c in text)
-            
-            converted = ''
-            hexpart = ''
-            strpart = ''
+            convertedtext = ''
             buf = StringIO(text)
             line = buf.readline()
             while line:
@@ -191,19 +191,52 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     hexpart = ' '.join('{:02X}'.format(ord(c)) for c in line).ljust(52)
                     strpart = line.translate(TRANS_TABLE)
 
-                    self.recvTextEdit.append(hexpart + strpart)
+                    convertedtext += hexpart + strpart + '\n'
                     line = buf.readline()
                 else:
                     hexpart = ' '.join('{:02X}'.format(ord(c)) for c in line[:16]).ljust(52)
                     strpart = line[:16].translate(TRANS_TABLE)
 
-                    self.recvTextEdit.append(hexpart + strpart)
+                    convertedtext += hexpart + strpart + '\n'
                     line = line[16:]
+            
+            self.recvTextEdit.moveCursor(QTextCursor.End)
+            self.recvTextEdit.insertPlainText(convertedtext)
         else: 
             # self.recvTextEdit.append(text)
             self.recvTextEdit.moveCursor(QTextCursor.End)
             self.recvTextEdit.insertPlainText(text)
             self.recvTextEdit.moveCursor(QTextCursor.End)
+
+    def convert(self, is_true):
+        text = None
+        if is_true:
+            convertedtext = ''
+            self.input.seek(0, os.SEEK_SET)
+            line = self.input.readline()
+            while line:
+                if len(line) <= 16:
+                    hexpart = ' '.join('{:02X}'.format(ord(c)) for c in line).ljust(52)
+                    strpart = line.translate(TRANS_TABLE)
+
+                    convertedtext += hexpart + strpart + '\n'
+                    line = self.input.readline()
+                else:
+                    hexpart = ' '.join('{:02X}'.format(ord(c)) for c in line[:16]).ljust(52)
+                    strpart = line[:16].translate(TRANS_TABLE)
+
+                    convertedtext += hexpart + strpart + '\n'
+                    line = line[16:]
+            text = convertedtext
+        else:
+            text = self.input.getvalue()
+        
+        self.recvTextEdit.clear()
+        self.recvTextEdit.insertPlainText(text)
+
+    def clear(self):
+        self.recvTextEdit.clear()
+        self.input.truncate(0)
         
 class Worker(QObject):
     received = Signal(str)
@@ -281,7 +314,7 @@ class Worker(QObject):
         print('rx thread is started')
         while not self.stopevent.is_set():
             try:
-                data = self.serial.read(64)
+                data = self.serial.read(1024)
                 
                 if data and len(data) > 0:
                     print('rx:' + data)
