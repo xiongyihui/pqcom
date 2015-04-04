@@ -13,6 +13,7 @@ from PySide.QtGui import *
 from PySide.QtCore import *
 from cStringIO import StringIO
 import string
+from PySide import QtSvg, QtXml
 
 DEFAULT_EOF = '\n'
 TRANS_STRING = ''.join(chr(i) for i in range(0, 0x20) + range(0x80, 0x100))
@@ -137,7 +138,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.extendRadioButton.setVisible(False)
         
     def new(self):
-        args = [sys.executable] + sys.argv
+        args = sys.argv
+        if args != [sys.executable]:
+            args = [sys.executable] + args
         subprocess.Popen(args)
         
     def send(self):
