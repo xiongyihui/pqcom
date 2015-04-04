@@ -12,21 +12,11 @@ import pqcom_about_ui
 from PySide.QtGui import *
 from PySide.QtCore import *
 from cStringIO import StringIO
-import string
-from PySide import QtSvg, QtXml
+from util import resource_path, TRANS_TABLE
 
 DEFAULT_EOF = '\n'
-TRANS_STRING = ''.join(chr(i) for i in range(0, 0x20) + range(0x80, 0x100))
-TRANS_TABLE = string.maketrans(TRANS_STRING, ''.ljust(len(TRANS_STRING), '.'))
-
 worker = None
 
-
-script_path = os.path.dirname(os.path.realpath(sys.argv[0]))
-
-def resource_path(relative_path):
-    base_path = getattr(sys, '_MEIPASS', script_path)
-    return os.path.join(base_path, relative_path)
     
 class AboutDialog(QDialog, pqcom_about_ui.Ui_Dialog):
     def __init__(self, parent=None):
@@ -90,12 +80,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         parameters = self.setupDialog.get()
         self.setWindowTitle('pqcom - ' + parameters[0] + ' ' + str(parameters[1]))
 
-        self.actionNew.setIcon(QIcon(resource_path('img/new.svg')))
-        self.actionSetup.setIcon(QIcon(resource_path('img/settings.svg')))
-        self.actionRun.setIcon(QIcon(resource_path('img/run.svg')))
-        self.actionHex.setIcon(QIcon(resource_path('img/hex.svg')))
-        self.actionClear.setIcon(QIcon(resource_path('img/clear.svg')))
-        self.actionAbout.setIcon(QIcon(resource_path('img/about.svg')))
+        self.actionNew.setIcon(QIcon(resource_path('img/new.png')))
+        self.actionSetup.setIcon(QIcon(resource_path('img/settings.png')))
+        self.actionRun.setIcon(QIcon(resource_path('img/run.png')))
+        self.actionHex.setIcon(QIcon(resource_path('img/hex.png')))
+        self.actionClear.setIcon(QIcon(resource_path('img/clear.png')))
+        self.actionAbout.setIcon(QIcon(resource_path('img/about.png')))
 
         self.actionUseCR = QAction('EOL - \\r', self)
         self.actionUseCR.setCheckable(True)
