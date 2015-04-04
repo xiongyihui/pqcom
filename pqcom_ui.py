@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'pqcom.ui'
 #
-# Created: Sun Mar 29 01:52:39 2015
+# Created: Sat Apr  4 10:34:07 2015
 #      by: pyside-uic 0.2.14 running on PySide 1.1.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -12,7 +12,8 @@ from PySide import QtCore, QtGui
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(558, 508)
+        MainWindow.resize(640, 504)
+        MainWindow.setBaseSize(QtCore.QSize(640, 504))
         self.centralwidget = QtGui.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.verticalLayout = QtGui.QVBoxLayout(self.centralwidget)

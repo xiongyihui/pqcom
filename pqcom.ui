@@ -6,9 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>558</width>
-    <height>508</height>
+    <width>640</width>
+    <height>504</height>
    </rect>
+  </property>
+  <property name="baseSize">
+   <size>
+    <width>640</width>
+    <height>504</height>
+   </size>
   </property>
   <property name="windowTitle">
    <string>pqcom</string>

@@ -11,11 +11,16 @@ import pqcom_setup_ui
 import pqcom_about_ui
 from PySide.QtGui import *
 from PySide.QtCore import *
-import StringIO
+from cStringIO import StringIO
+import string
 
 DEFAULT_EOF = '\n'
+TRANS_STRING = ''.join(chr(i) for i in range(0, 0x20) + range(0x80, 0x100))
+TRANS_TABLE = string.maketrans(TRANS_STRING, ''.ljust(len(TRANS_STRING), '.'))
 
 worker = None
+
+
 script_path = os.path.dirname(os.path.realpath(sys.argv[0]))
 
 def resource_path(relative_path):
@@ -73,16 +78,21 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self, parent=None):
         super(MainWindow, self).__init__(parent)
         self.setupUi(self)
+
+        self.input = StringIO()
         
         self.setWindowIcon(QIcon(resource_path('img/pqcom-logo.png')))
         
         self.aboutDialog = AboutDialog(self)
         
         self.setupDialog = SetupDialog(self)
+        parameters = self.setupDialog.get()
+        self.setWindowTitle('pqcom - ' + parameters[0] + ' ' + str(parameters[1]))
+
         self.actionNew.setIcon(QIcon(resource_path('img/new.svg')))
         self.actionSetup.setIcon(QIcon(resource_path('img/settings.svg')))
         self.actionRun.setIcon(QIcon(resource_path('img/run.svg')))
-        self.actionHex.setIcon(QIcon(resource_path('img/hex.png')))
+        self.actionHex.setIcon(QIcon(resource_path('img/hex.svg')))
         self.actionClear.setIcon(QIcon(resource_path('img/clear.svg')))
         self.actionAbout.setIcon(QIcon(resource_path('img/about.svg')))
 
@@ -167,13 +177,33 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.setWindowTitle('pqcom - ' + parameters[0] + ' ' + str(parameters[1]) + ' closed')
 
     def display(self, text):
+        self.input.write(text)
         if self.actionHex.isChecked():
-            text = ' '.join('{:02X}'.format(ord(c)) for c in text)
+            # text = ' '.join('{:02X}'.format(ord(c)) for c in text)
             
-        # self.recvTextEdit.append(text)
-        self.recvTextEdit.moveCursor(QTextCursor.End)
-        self.recvTextEdit.insertPlainText(text)
-        self.recvTextEdit.moveCursor(QTextCursor.End)
+            converted = ''
+            hexpart = ''
+            strpart = ''
+            buf = StringIO(text)
+            line = buf.readline()
+            while line:
+                if len(line) <= 16:
+                    hexpart = ' '.join('{:02X}'.format(ord(c)) for c in line).ljust(52)
+                    strpart = line.translate(TRANS_TABLE)
+
+                    self.recvTextEdit.append(hexpart + strpart)
+                    line = buf.readline()
+                else:
+                    hexpart = ' '.join('{:02X}'.format(ord(c)) for c in line[:16]).ljust(52)
+                    strpart = line[:16].translate(TRANS_TABLE)
+
+                    self.recvTextEdit.append(hexpart + strpart)
+                    line = line[16:]
+        else: 
+            # self.recvTextEdit.append(text)
+            self.recvTextEdit.moveCursor(QTextCursor.End)
+            self.recvTextEdit.insertPlainText(text)
+            self.recvTextEdit.moveCursor(QTextCursor.End)
         
 class Worker(QObject):
     received = Signal(str)
