@@ -24,4 +24,4 @@ A simple serial tool for Linux/Windows/Mac. It's written by Python and Qt (PySid
 
 -	Windows
 
-	Download the executable application from [here](https://github.com/xiongyihui/pqcom/raw/windows/dist/pqcom.exe).
+	Download the executable application from [Github](https://github.com/xiongyihui/pqcom/raw/windows/dist/pqcom.exe) or [七牛](http://tangram.qiniudn.com/pqcom.exe).
