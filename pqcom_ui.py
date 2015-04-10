@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file 'pqcom.ui'
 #
-# Created: Sat Apr  4 10:34:07 2015
-#      by: pyside-uic 0.2.14 running on PySide 1.1.2
+# Created: Fri Apr 10 23:21:20 2015
+#      by: pyside-uic 0.2.15 running on PySide 1.2.2
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -43,6 +43,7 @@ class Ui_MainWindow(object):
         self.verticalLayout.addWidget(self.sendPlainTextEdit)
         self.horizontalLayout = QtGui.QHBoxLayout()
         self.horizontalLayout.setSpacing(0)
+        self.horizontalLayout.setContentsMargins(0, -1, 0, -1)
         self.horizontalLayout.setObjectName("horizontalLayout")
         self.normalRadioButton = QtGui.QRadioButton(self.centralwidget)
         self.normalRadioButton.setChecked(True)
@@ -56,14 +57,11 @@ class Ui_MainWindow(object):
         self.horizontalLayout.addWidget(self.extendRadioButton)
         spacerItem = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
         self.horizontalLayout.addItem(spacerItem)
-        self.line_2 = QtGui.QFrame(self.centralwidget)
-        self.line_2.setFrameShape(QtGui.QFrame.VLine)
-        self.line_2.setFrameShadow(QtGui.QFrame.Sunken)
-        self.line_2.setObjectName("line_2")
-        self.horizontalLayout.addWidget(self.line_2)
         self.sendButton = QtGui.QToolButton(self.centralwidget)
+        self.sendButton.setMinimumSize(QtCore.QSize(64, 0))
+        self.sendButton.setStyleSheet("border: 1px outset rgb(29, 153, 243);")
         self.sendButton.setPopupMode(QtGui.QToolButton.MenuButtonPopup)
-        self.sendButton.setToolButtonStyle(QtCore.Qt.ToolButtonTextUnderIcon)
+        self.sendButton.setToolButtonStyle(QtCore.Qt.ToolButtonTextBesideIcon)
         self.sendButton.setAutoRaise(True)
         self.sendButton.setObjectName("sendButton")
         self.horizontalLayout.addWidget(self.sendButton)

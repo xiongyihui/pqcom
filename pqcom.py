@@ -32,11 +32,13 @@ class AboutDialog(QDialog, pqcom_about_ui.Ui_Dialog):
     def __init__(self, parent=None):
         super(AboutDialog, self).__init__(parent)
         self.setupUi(self)
+        self.setWindowFlags(self.windowFlags() ^ Qt.WindowContextHelpButtonHint)
 
 class SetupDialog(QDialog, pqcom_setup_ui.Ui_Dialog):
     def __init__(self, parent=None):
         super(SetupDialog, self).__init__(parent)
         self.setupUi(self)
+        self.setWindowFlags(self.windowFlags() ^ Qt.WindowContextHelpButtonHint)
         
         self.ports = None
         self.originalPalette = self.portComboBox.palette()
@@ -122,6 +124,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         popupMenu.addAction(self.actionAppendEol)
 
         self.sendButton.setMenu(popupMenu)
+        # self.sendButton.setStyleSheet('QToolButton {border: 1px outset rgb(29, 153, 243);}')
+        # self.sendButton.setStyleSheet('QToolButton {border: 1px outset rgb(218, 68, 83);}')
         # self.sendButton.setIcon(QIcon(resource_path('img/run.png')))
 
         self.sendButton.clicked.connect(self.send)

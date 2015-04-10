@@ -77,6 +77,12 @@
       <property name="spacing">
        <number>0</number>
       </property>
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
       <item>
        <widget class="QRadioButton" name="normalRadioButton">
         <property name="text">
@@ -115,14 +121,16 @@
        </spacer>
       </item>
       <item>
-       <widget class="Line" name="line_2">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
-        </property>
-       </widget>
-      </item>
-      <item>
        <widget class="QToolButton" name="sendButton">
+        <property name="minimumSize">
+         <size>
+          <width>64</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">border: 1px outset rgb(29, 153, 243);</string>
+        </property>
         <property name="text">
          <string>Send</string>
         </property>
@@ -130,7 +138,7 @@
          <enum>QToolButton::MenuButtonPopup</enum>
         </property>
         <property name="toolButtonStyle">
-         <enum>Qt::ToolButtonTextUnderIcon</enum>
+         <enum>Qt::ToolButtonTextBesideIcon</enum>
         </property>
         <property name="autoRaise">
          <bool>true</bool>
