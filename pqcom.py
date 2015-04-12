@@ -41,24 +41,20 @@ class SetupDialog(QDialog, pqcom_setup_ui.Ui_Dialog):
         self.setWindowFlags(self.windowFlags() ^ Qt.WindowContextHelpButtonHint)
         
         self.ports = None
-        self.originalPalette = self.portComboBox.palette()
-        
         self.refresh()
         
         self.portComboBox.clicked.connect(self.refresh)
             
     def show(self, hasError=False):
         if hasError:
-            p = self.portComboBox.palette()
-            p.setColor(QPalette.Text, QColor(255, 0, 0))
-            self.portComboBox.setPalette(p)
+            self.portComboBox.setStyleSheet('QComboBox {color: red;}')
         else:
             self.refresh()
             
         return self.exec_()
                 
     def refresh(self):
-        self.portComboBox.setPalette(self.originalPalette)
+        self.portComboBox.setStyleSheet('QComboBox {color: black;}')
         ports = list_ports.comports()
         if ports != self.ports:
             self.ports = ports
@@ -171,8 +167,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def setup(self, hasError=False):
         choice = self.setupDialog.show(hasError)
         if choice == QDialog.Accepted:
-            # parameters = self.setupDialog.get()
-            # worker.start(parameters)
+            if self.actionRun.isChecked():
+                self.actionRun.setChecked(False)
             self.actionRun.setChecked(True)
         else:
             print('close')
