@@ -13,40 +13,40 @@ from PySide.QtGui import *
 from PySide.QtCore import *
 from cStringIO import StringIO
 from util import resource_path, TRANS_TABLE
+import string
+from PySide import QtSvg, QtXml
+from time import sleep
 
 DEFAULT_EOF = '\n'
 worker = None
-
     
 class AboutDialog(QDialog, pqcom_about_ui.Ui_Dialog):
     def __init__(self, parent=None):
         super(AboutDialog, self).__init__(parent)
         self.setupUi(self)
+        self.setWindowFlags(self.windowFlags() ^ Qt.WindowContextHelpButtonHint)
 
 class SetupDialog(QDialog, pqcom_setup_ui.Ui_Dialog):
     def __init__(self, parent=None):
         super(SetupDialog, self).__init__(parent)
         self.setupUi(self)
+        self.setWindowFlags(self.windowFlags() ^ Qt.WindowContextHelpButtonHint)
         
         self.ports = None
-        self.originalPalette = self.portComboBox.palette()
-        
         self.refresh()
         
         self.portComboBox.clicked.connect(self.refresh)
             
     def show(self, hasError=False):
         if hasError:
-            p = self.portComboBox.palette()
-            p.setColor(QPalette.Text, QColor(255, 0, 0))
-            self.portComboBox.setPalette(p)
+            self.portComboBox.setStyleSheet('QComboBox {color: red;}')
         else:
             self.refresh()
             
         return self.exec_()
                 
     def refresh(self):
-        self.portComboBox.setPalette(self.originalPalette)
+        self.portComboBox.setStyleSheet('QComboBox {color: black;}')
         ports = list_ports.comports()
         if ports != self.ports:
             self.ports = ports
@@ -71,6 +71,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.setupUi(self)
 
         self.input = StringIO()
+        self.history = []
+        self.repeater = Repeater()
         
         self.setWindowIcon(QIcon(resource_path('img/pqcom-logo.png')))
         
@@ -112,9 +114,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         popupMenu.addAction(self.actionAppendEol)
 
         self.sendButton.setMenu(popupMenu)
+        # self.sendButton.setStyleSheet('QToolButton {border: 1px outset rgb(29, 153, 243);}')
+        # self.sendButton.setStyleSheet('QToolButton {border: 1px outset rgb(218, 68, 83);}')
         # self.sendButton.setIcon(QIcon(resource_path('img/run.png')))
 
         self.sendButton.clicked.connect(self.send)
+        self.repeatCheckBox.toggled.connect(self.repeat)
         self.actionSetup.triggered.connect(self.setup)
         self.actionNew.triggered.connect(self.new)
         self.actionRun.toggled.connect(self.run)
@@ -122,10 +127,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.actionClear.triggered.connect(self.clear)
         self.actionAbout.triggered.connect(self.aboutDialog.show)
 
-        QShortcut(QtGui.QKeySequence("Ctrl+Return"), self.sendPlainTextEdit, self.send)
+        QShortcut(QtGui.QKeySequence('Ctrl+Return'), self.sendPlainTextEdit, self.send)
         
-        # self.actionHex.setVisible(False)
         self.extendRadioButton.setVisible(False)
+        self.periodSpinBox.setVisible(False)
+        self.historyButton.setVisible(False)
         
     def new(self):
         args = sys.argv
@@ -134,7 +140,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         subprocess.Popen(args)
         
     def send(self):
-        data = str(self.sendPlainTextEdit.toPlainText())
+        if self.repeatCheckBox.isChecked():
+            if str(self.sendButton.text()) == 'Stop':
+                self.repeater.stop()
+                self.sendButton.setText('Start')
+                return
+            
+        raw = str(self.sendPlainTextEdit.toPlainText())
+        data = raw
+        type = 0
         if self.normalRadioButton.isChecked():
             if self.actionAppendEol.isChecked():
                 data += '\n'
@@ -144,11 +158,32 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             elif self.actionUseCR.isChecked():
                 data = data.replace('\n', '\r')
         elif self.hexRadioButton.isChecked():
+            type = 1
             data = str(bytearray.fromhex(data.replace('\n', ' ')))
         else:
             pass
             
-        worker.put(data);
+        if self.repeatCheckBox.isChecked():
+            self.repeater.start(data, self.periodSpinBox.value())
+            self.sendButton.setText('Stop')
+        else:
+            worker.put(data);
+            
+        # record history
+        record = [type, raw, data]
+        try:
+            self.history.remove(record)
+        except ValueError as e:
+            pass
+        self.history.insert(0, record)
+        
+    def repeat(self, isTrue):
+        if isTrue:
+            self.periodSpinBox.setVisible(True)
+            self.sendButton.setText('Start')
+        else:
+            self.periodSpinBox.setVisible(False)
+            self.sendButton.setText('Send')
         
     def handle(self):
         self.actionRun.setChecked(False)
@@ -157,15 +192,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def setup(self, hasError=False):
         choice = self.setupDialog.show(hasError)
         if choice == QDialog.Accepted:
-            # parameters = self.setupDialog.get()
-            # worker.start(parameters)
+            if self.actionRun.isChecked():
+                self.actionRun.setChecked(False)
             self.actionRun.setChecked(True)
         else:
             print('close')
             
-    def run(self, is_true):
+    def run(self, isTrue):
         parameters = self.setupDialog.get()
-        if is_true:
+        if isTrue:
             worker.start(parameters)
             self.setWindowTitle('pqcom - ' + parameters[0] + ' ' + str(parameters[1]) + ' opened')
         else:
@@ -195,6 +230,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             
             self.recvTextEdit.moveCursor(QTextCursor.End)
             self.recvTextEdit.insertPlainText(convertedtext)
+            self.recvTextEdit.moveCursor(QTextCursor.End)
         else: 
             # self.recvTextEdit.append(text)
             self.recvTextEdit.moveCursor(QTextCursor.End)
@@ -226,10 +262,35 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         
         self.recvTextEdit.clear()
         self.recvTextEdit.insertPlainText(text)
+        self.recvTextEdit.moveCursor(QTextCursor.End)
 
     def clear(self):
         self.recvTextEdit.clear()
         self.input.truncate(0)
+        
+class Repeater():
+    def __init__(self):
+        self.stopevent = threading.Event()
+        
+    def setPeriod(self, period):
+        self.period = period
+        
+    def start(self, data, period):
+        self.stopevent.clear()
+        self.data = data
+        self.period = period
+        self.thread = threading.Thread(target=self.repeat)
+        self.thread.start()
+        
+    def stop(self):
+        self.stopevent.set()
+        
+    def repeat(self):
+        print('repeater thread is started')
+        while not self.stopevent.is_set():
+            worker.put(self.data)
+            sleep(self.period)
+        print('repeater thread exits')
         
 class Worker(QObject):
     received = Signal(str)

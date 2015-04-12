@@ -29,6 +29,12 @@
     </property>
     <item>
      <widget class="QTextEdit" name="recvTextEdit">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
       <property name="font">
        <font>
         <family>Droid Sans Mono</family>
@@ -42,7 +48,7 @@
     <item>
      <widget class="QPlainTextEdit" name="sendPlainTextEdit">
       <property name="sizePolicy">
-       <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+       <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">
         <horstretch>0</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
@@ -75,6 +81,15 @@
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout">
       <property name="spacing">
+       <number>8</number>
+      </property>
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
        <number>0</number>
       </property>
       <item>
@@ -102,6 +117,19 @@
        </widget>
       </item>
       <item>
+       <widget class="QPushButton" name="historyButton">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>History</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <spacer name="horizontalSpacer">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
@@ -115,14 +143,45 @@
        </spacer>
       </item>
       <item>
-       <widget class="Line" name="line_2">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
+       <widget class="QDoubleSpinBox" name="periodSpinBox">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="suffix">
+         <string>s</string>
+        </property>
+        <property name="decimals">
+         <number>3</number>
+        </property>
+        <property name="value">
+         <double>1.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="repeatCheckBox">
+        <property name="text">
+         <string>Repeat</string>
         </property>
        </widget>
       </item>
       <item>
        <widget class="QToolButton" name="sendButton">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>64</width>
+          <height>20</height>
+         </size>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">border: 1px outset rgb(29, 153, 243);</string>
+        </property>
         <property name="text">
          <string>Send</string>
         </property>
@@ -130,7 +189,7 @@
          <enum>QToolButton::MenuButtonPopup</enum>
         </property>
         <property name="toolButtonStyle">
-         <enum>Qt::ToolButtonTextUnderIcon</enum>
+         <enum>Qt::ToolButtonTextBesideIcon</enum>
         </property>
         <property name="autoRaise">
          <bool>true</bool>
@@ -179,6 +238,9 @@
    <property name="text">
     <string>New</string>
    </property>
+   <property name="toolTip">
+    <string>New Window</string>
+   </property>
   </action>
   <action name="actionHex">
    <property name="checkable">
@@ -186,6 +248,9 @@
    </property>
    <property name="text">
     <string>Hex</string>
+   </property>
+   <property name="toolTip">
+    <string>View HEX format data</string>
    </property>
    <property name="visible">
     <bool>true</bool>
@@ -216,6 +281,17 @@
    </property>
   </action>
  </widget>
+ <tabstops>
+  <tabstop>sendPlainTextEdit</tabstop>
+  <tabstop>sendButton</tabstop>
+  <tabstop>repeatCheckBox</tabstop>
+  <tabstop>periodSpinBox</tabstop>
+  <tabstop>historyButton</tabstop>
+  <tabstop>extendRadioButton</tabstop>
+  <tabstop>hexRadioButton</tabstop>
+  <tabstop>normalRadioButton</tabstop>
+  <tabstop>recvTextEdit</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
