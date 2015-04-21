@@ -118,6 +118,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # self.sendButton.setStyleSheet('QToolButton {border: 1px outset rgb(218, 68, 83);}')
         # self.sendButton.setIcon(QIcon(resource_path('img/run.png')))
         
+        self.outputHistoryActions = []
         self.outputHistoryMenu = QMenu(self)
         self.historyButton.setMenu(self.outputHistoryMenu)
 
@@ -129,12 +130,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.actionHex.toggled.connect(self.convert)
         self.actionClear.triggered.connect(self.clear)
         self.actionAbout.triggered.connect(self.aboutDialog.show)
+        self.outputHistoryMenu.triggered.connect(self.prev)
 
         QShortcut(QtGui.QKeySequence('Ctrl+Return'), self.sendPlainTextEdit, self.send)
         
         self.extendRadioButton.setVisible(False)
         self.periodSpinBox.setVisible(False)
-        self.historyButton.setVisible(False)
+        # self.historyButton.setVisible(False)
         
     def new(self):
         args = sys.argv
@@ -151,7 +153,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             
         raw = str(self.sendPlainTextEdit.toPlainText())
         data = raw
-        type = 0
+        type = ''
         if self.normalRadioButton.isChecked():
             if self.actionAppendEol.isChecked():
                 data += '\n'
@@ -161,7 +163,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             elif self.actionUseCR.isChecked():
                 data = data.replace('\n', '\r')
         elif self.hexRadioButton.isChecked():
-            type = 1
+            type = 'HEX'
             data = str(bytearray.fromhex(data.replace('\n', ' ')))
         else:
             pass
@@ -173,7 +175,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             txqueue.put(data);
             
         # record history
-        '''
         record = [type, raw, data]
         try:
             self.outputHistory.remove(record)
@@ -181,10 +182,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             pass
         self.outputHistory.insert(0, record)
         
+        self.outputHistoryActions = []
         self.outputHistoryMenu.clear()
         for item in self.outputHistory:
-            self.outputHistoryMenu.addAction(item[1])
-        '''
+            text = item[1]
+            if item[0]:
+                text = item[0] + ':' + text
+            action = self.outputHistoryMenu.addAction(text)
+            self.outputHistoryActions.append(action)
         
     def repeat(self, isTrue):
         if isTrue:
@@ -193,6 +198,17 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         else:
             self.periodSpinBox.setVisible(False)
             self.sendButton.setText('Send')
+            
+    def prev(self, action):
+        index = self.outputHistoryActions.index(action)
+        type, raw, data = self.outputHistory[index]
+        if type == 'HEX':
+            self.hexRadioButton.setChecked(True)
+        else:
+            self.normalRadioButton.setChecked(True)
+            
+        self.sendPlainTextEdit.clear()
+        self.sendPlainTextEdit.insertPlainText(raw)
         
     def handle(self):
         self.actionRun.setChecked(False)
