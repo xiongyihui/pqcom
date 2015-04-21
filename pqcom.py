@@ -12,13 +12,14 @@ import pqcom_about_ui
 from PySide.QtGui import *
 from PySide.QtCore import *
 from cStringIO import StringIO
-from util import resource_path, TRANS_TABLE
+from util import resource_path, TRANS_TABLE, TRANS_STRING
 import string
 from PySide import QtSvg, QtXml
 from time import sleep
 
 DEFAULT_EOF = '\n'
-worker = None
+txqueue = Queue.Queue()
+rxqueue = Queue.Queue()
     
 class AboutDialog(QDialog, pqcom_about_ui.Ui_Dialog):
     def __init__(self, parent=None):
@@ -70,8 +71,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         super(MainWindow, self).__init__(parent)
         self.setupUi(self)
 
-        self.input = StringIO()
-        self.history = []
+        self.inputHistory = ''
+        self.outputHistory = []
         self.repeater = Repeater()
         
         self.setWindowIcon(QIcon(resource_path('img/pqcom-logo.png')))
@@ -105,7 +106,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.actionAppendEol = QAction('Append extra EOL', self)
         self.actionAppendEol.setCheckable(True)
 
-
         popupMenu = QMenu(self)
         popupMenu.addAction(self.actionUseCR)
         popupMenu.addAction(self.actionUseLF)
@@ -117,6 +117,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # self.sendButton.setStyleSheet('QToolButton {border: 1px outset rgb(29, 153, 243);}')
         # self.sendButton.setStyleSheet('QToolButton {border: 1px outset rgb(218, 68, 83);}')
         # self.sendButton.setIcon(QIcon(resource_path('img/run.png')))
+        
+        self.outputHistoryMenu = QMenu(self)
+        self.historyButton.setMenu(self.outputHistoryMenu)
 
         self.sendButton.clicked.connect(self.send)
         self.repeatCheckBox.toggled.connect(self.repeat)
@@ -167,15 +170,21 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.repeater.start(data, self.periodSpinBox.value())
             self.sendButton.setText('Stop')
         else:
-            worker.put(data);
+            txqueue.put(data);
             
         # record history
+        '''
         record = [type, raw, data]
         try:
-            self.history.remove(record)
+            self.outputHistory.remove(record)
         except ValueError as e:
             pass
-        self.history.insert(0, record)
+        self.outputHistory.insert(0, record)
+        
+        self.outputHistoryMenu.clear()
+        for item in self.outputHistory:
+            self.outputHistoryMenu.addAction(item[1])
+        '''
         
     def repeat(self, isTrue):
         if isTrue:
@@ -207,66 +216,82 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             worker.join()
             self.setWindowTitle('pqcom - ' + parameters[0] + ' ' + str(parameters[1]) + ' closed')
 
-    def display(self, text):
-        self.input.write(text)      # store history data
+    def display(self):
+        if rxqueue.empty():
+            return
+          
+        data = rxqueue.get()
+        self.inputHistory += data      # store history data
 
         if self.actionHex.isChecked():
-            convertedtext = ''
-            buf = StringIO(text)
-            line = buf.readline()
-            while line:
-                if len(line) <= 16:
-                    hexpart = ' '.join('{:02X}'.format(ord(c)) for c in line).ljust(52)
-                    strpart = line.translate(TRANS_TABLE)
-
-                    convertedtext += hexpart + strpart + '\n'
-                    line = buf.readline()
-                else:
-                    hexpart = ' '.join('{:02X}'.format(ord(c)) for c in line[:16]).ljust(52)
-                    strpart = line[:16].translate(TRANS_TABLE)
-
-                    convertedtext += hexpart + strpart + '\n'
-                    line = line[16:]
+            data = self.hex(data)
+        else:
+            pass
+            #data = data.translate(TRANS_TABLE)
             
-            self.recvTextEdit.moveCursor(QTextCursor.End)
-            self.recvTextEdit.insertPlainText(convertedtext)
-            self.recvTextEdit.moveCursor(QTextCursor.End)
-        else: 
-            # self.recvTextEdit.append(text)
-            self.recvTextEdit.moveCursor(QTextCursor.End)
-            self.recvTextEdit.insertPlainText(text)
-            self.recvTextEdit.moveCursor(QTextCursor.End)
+        self.recvTextEdit.moveCursor(QTextCursor.End)
+        self.recvTextEdit.insertPlainText(data)
+        self.recvTextEdit.moveCursor(QTextCursor.End)
 
     def convert(self, is_true):
         text = None
         if is_true:
-            convertedtext = ''
-            self.input.seek(0, os.SEEK_SET)
-            line = self.input.readline()
-            while line:
-                if len(line) <= 16:
-                    hexpart = ' '.join('{:02X}'.format(ord(c)) for c in line).ljust(52)
-                    strpart = line.translate(TRANS_TABLE)
-
-                    convertedtext += hexpart + strpart + '\n'
-                    line = self.input.readline()
-                else:
-                    hexpart = ' '.join('{:02X}'.format(ord(c)) for c in line[:16]).ljust(52)
-                    strpart = line[:16].translate(TRANS_TABLE)
-
-                    convertedtext += hexpart + strpart + '\n'
-                    line = line[16:]
-            text = convertedtext
+            text = self.hex(self.inputHistory)
         else:
-            text = self.input.getvalue()
+            text = self.inputHistory
+            #text = self.inputHistory.translate(TRANS_TABLE)
         
         self.recvTextEdit.clear()
         self.recvTextEdit.insertPlainText(text)
         self.recvTextEdit.moveCursor(QTextCursor.End)
+        
+    def hex(self, data):
+        convertedtext = ''
+        bytesindex = 0
+        hexpart = ''
+        strpart = ''
+        while bytesindex < len(data):
+            ch = data[bytesindex]
+            if ch == '\n':
+                hexpart += '0A' + ' '
+                strpart += '.'
+                
+                convertedtext += hexpart.ljust(52) + strpart + '\n'
+                hexpart = ''
+                strpart = ''
+            elif ch == '\r':
+                hexpart += '0D' + ' '
+                strpart += '.'
+                
+                if ((bytesindex + 1) < len(data)) and (data[bytesindex + 1] == '\n'):
+                    hexpart += '0A' + ' '
+                    strpart += '.'
+                    bytesindex += 1
+
+                convertedtext += hexpart.ljust(52) + strpart + '\n'
+                hexpart = ''
+                strpart = ''
+            else:
+                hexpart += '{:02X}'.format(ord(ch)) + ' '
+                if ch < '\x20' or ch > '\x7F':
+                    ch = '.'
+                strpart += ch
+                
+            if len(strpart) >= 16:
+                convertedtext += hexpart.ljust(52) + strpart + '\n'
+                hexpart = ''
+                strpart = ''
+                
+            bytesindex += 1
+            
+        if strpart:
+            convertedtext += hexpart.ljust(52) + strpart + '\n'
+            
+        return convertedtext
 
     def clear(self):
         self.recvTextEdit.clear()
-        self.input.truncate(0)
+        self.inputHistory = ''
         
 class Repeater():
     def __init__(self):
@@ -293,17 +318,17 @@ class Repeater():
         print('repeater thread exits')
         
 class Worker(QObject):
-    received = Signal(str)
+    received = Signal()
     failed = Signal()
     
-    def __init__(self):
+    def __init__(self, txqueue, rxqueue):
         super(Worker, self).__init__()
         
         self.serial = None
         self.parameters = None
         self.stopevent = threading.Event()
-        self.txqueue = Queue.Queue()
-        self.rxqueue = Queue.Queue()
+        self.txqueue = txqueue
+        self.rxqueue = rxqueue
         
         self.txthread = None
         self.rxthread = None
@@ -316,19 +341,12 @@ class Worker(QObject):
                                         bytesize = parameters[2],
                                         stopbits = parameters[3],
                                         timeout  = 0.2)
-            if self.stopevent.is_set():
-                self.stopevent.clear()
-                
-                self.txthread = threading.Thread(target=self.send)
-                self.rxthread = threading.Thread(target=self.recv)
-                self.txthread.start()
-                self.rxthread.start()
-            else:
-                if not self.txthread:
-                    self.txthread = threading.Thread(target=self.send)
-                    self.rxthread = threading.Thread(target=self.recv)
-                    self.txthread.start()
-                    self.rxthread.start()
+            self.stopevent.set()   
+            self.txthread = threading.Thread(target=self.send)
+            self.rxthread = threading.Thread(target=self.recv)
+            self.stopevent.clear()
+            self.txthread.start()
+            self.rxthread.start()
                 
         except IOError as e:
             print(e)
@@ -343,7 +361,7 @@ class Worker(QObject):
         if self.serial:
             self.serial.close()
     
-    @Slot(str, int)    
+    @Slot(str)    
     def put(self, data):
         self.txqueue.put(data)
 
@@ -372,7 +390,8 @@ class Worker(QObject):
                 
                 if data and len(data) > 0:
                     print('rx:' + data)
-                    self.received.emit(data)
+                    self.rxqueue.put(data)
+                    self.received.emit()
             except IOError as e:
                 self.serial.close()
                 self.stopevent.set()
@@ -382,7 +401,7 @@ class Worker(QObject):
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    worker = Worker()
+    worker = Worker(txqueue, rxqueue)
     window = MainWindow()
     
     worker.received.connect(window.display)
