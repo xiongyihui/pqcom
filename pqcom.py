@@ -54,7 +54,7 @@ class SetupDialog(QDialog, pqcom_setup_ui.Ui_Dialog):
             self.portComboBox.clear()
             for port in list_ports.comports():
                 name = port[0]
-                if name.startswith('/dev/ttyACM') or name.startswith('/dev/ttyUSB') or name.startswith('COM'):
+                if name.startswith('/dev/ttyACM') or name.startswith('/dev/ttyUSB') or name.startswith('COM') or name.startswith('/dev/cu.usbserial'):
                     self.portComboBox.addItem(name)
 
     def get(self):
