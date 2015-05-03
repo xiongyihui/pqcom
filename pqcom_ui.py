@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'pqcom.ui'
 #
-# Created: Mon Apr 13 00:19:41 2015
+# Created: Tue Apr 28 10:55:39 2015
 #      by: pyside-uic 0.2.15 running on PySide 1.2.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -60,6 +60,11 @@ class Ui_MainWindow(object):
         self.extendRadioButton = QtGui.QRadioButton(self.centralwidget)
         self.extendRadioButton.setObjectName("extendRadioButton")
         self.horizontalLayout.addWidget(self.extendRadioButton)
+        self.collectButton = QtGui.QToolButton(self.centralwidget)
+        self.collectButton.setText("")
+        self.collectButton.setPopupMode(QtGui.QToolButton.MenuButtonPopup)
+        self.collectButton.setObjectName("collectButton")
+        self.horizontalLayout.addWidget(self.collectButton)
         self.historyButton = QtGui.QPushButton(self.centralwidget)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
@@ -85,11 +90,11 @@ class Ui_MainWindow(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.sendButton.sizePolicy().hasHeightForWidth())
         self.sendButton.setSizePolicy(sizePolicy)
-        self.sendButton.setMinimumSize(QtCore.QSize(64, 20))
-        self.sendButton.setStyleSheet("border: 1px outset rgb(29, 153, 243);")
+        self.sendButton.setMinimumSize(QtCore.QSize(80, 20))
+        self.sendButton.setStyleSheet("")
         self.sendButton.setPopupMode(QtGui.QToolButton.MenuButtonPopup)
-        self.sendButton.setToolButtonStyle(QtCore.Qt.ToolButtonTextBesideIcon)
-        self.sendButton.setAutoRaise(True)
+        self.sendButton.setToolButtonStyle(QtCore.Qt.ToolButtonIconOnly)
+        self.sendButton.setAutoRaise(False)
         self.sendButton.setObjectName("sendButton")
         self.horizontalLayout.addWidget(self.sendButton)
         self.verticalLayout.addLayout(self.horizontalLayout)

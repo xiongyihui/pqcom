@@ -17,6 +17,8 @@ import string
 from PySide import QtSvg, QtXml
 from time import sleep
 
+ICON_LIB = {'N': 'img/normal.png', 'H': 'img/hex2.png', 'E': 'img/ext.png'}
+
 DEFAULT_EOF = '\n'
 txqueue = Queue.Queue()
 rxqueue = Queue.Queue()
@@ -54,7 +56,7 @@ class SetupDialog(QDialog, pqcom_setup_ui.Ui_Dialog):
             self.portComboBox.clear()
             for port in list_ports.comports():
                 name = port[0]
-                if name.startswith('/dev/ttyACM') or name.startswith('/dev/ttyUSB') or name.startswith('COM') or name.startswith('/dev/cu.usbserial'):
+                if name.startswith('/dev/ttyACM') or name.startswith('/dev/ttyUSB') or name.startswith('COM') or name.startswith('/dev/cu.usb'):
                     self.portComboBox.addItem(name)
 
     def get(self):
@@ -73,6 +75,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.inputHistory = ''
         self.outputHistory = []
+        self.collections = []
         self.repeater = Repeater()
 
         self.setWindowIcon(QIcon(resource_path('img/pqcom-logo.png')))
@@ -123,6 +126,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.outputHistoryMenu.addAction('None')
         self.historyButton.setMenu(self.outputHistoryMenu)
 
+        self.collectActions = []
+        self.collectMenu = QMenu(self)
+        self.collectMenu.addAction('None')
+        self.collectButton.setMenu(self.collectMenu)
+        self.collectButton.setIcon(QIcon(resource_path('img/star.png')))
+
         self.sendButton.clicked.connect(self.send)
         self.repeatCheckBox.toggled.connect(self.repeat)
         self.actionSetup.triggered.connect(self.setup)
@@ -131,7 +140,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.actionHex.toggled.connect(self.convert)
         self.actionClear.triggered.connect(self.clear)
         self.actionAbout.triggered.connect(self.aboutDialog.show)
-        self.outputHistoryMenu.triggered.connect(self.prev)
+        self.outputHistoryMenu.triggered.connect(self.on_history_item_clicked)
+        self.collectButton.clicked.connect(self.collect)
+        self.collectMenu.triggered.connect(self.on_collect_item_clicked)
 
         QShortcut(QtGui.QKeySequence('Ctrl+Return'), self.sendPlainTextEdit, self.send)
 
@@ -154,7 +165,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         raw = str(self.sendPlainTextEdit.toPlainText())
         data = raw
-        type = ''
+        type = 'N'
         if self.normalRadioButton.isChecked():
             if self.actionAppendEol.isChecked():
                 data += '\n'
@@ -187,10 +198,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.outputHistoryActions = []
         self.outputHistoryMenu.clear()
         for item in self.outputHistory:
-            text = item[1]
-            if item[0]:
-                text = item[0] + ':' + text
-            action = self.outputHistoryMenu.addAction(text)
+            icon = QIcon(resource_path(ICON_LIB[item[0]]))
+
+            action = self.outputHistoryMenu.addAction(icon, item[1])
             self.outputHistoryActions.append(action)
 
     def repeat(self, isTrue):
@@ -201,7 +211,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.periodSpinBox.setVisible(False)
             self.sendButton.setText('Send')
 
-    def prev(self, action):
+    def on_history_item_clicked(self, action):
         index = None
         try:
             index = self.outputHistoryActions.index(action)
@@ -219,8 +229,42 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.sendPlainTextEdit.clear()
         self.sendPlainTextEdit.insertPlainText(raw)
 
+    def collect(self):
+        if not self.collections:
+            self.collectMenu.clear()
+        raw = str(self.sendPlainTextEdit.toPlainText())
+        type = 'N'
+        if self.hexRadioButton.isChecked():
+            type = 'H'
+        elif self.extendRadioButton.isChecked():
+            type = 'E'
 
-    def handle(self):
+        item = [type, raw]
+        self.collections.append(item)
+        icon = QIcon(resource_path(ICON_LIB[type]))
+        action = self.collectMenu.addAction(icon, raw)
+        self.collectActions.append(action)
+
+    def on_collect_item_clicked(self, action):
+        index = None
+        try:
+            index = self.collectActions.index(action)
+        except ValueError as e:
+            return
+
+        type, raw = self.collections[index]
+        if type == 'H':
+            self.hexRadioButton.setChecked(True)
+        elif type == 'E':
+            self.extendRadioButton.setChecked(True)
+        else:
+            self.normalRadioButton.setChecked(True)
+
+        self.sendPlainTextEdit.clear()
+        self.sendPlainTextEdit.insertPlainText(raw)
+
+
+    def on_serial_failed(self):
         self.actionRun.setChecked(False)
         self.setup(True)
 
@@ -431,7 +475,7 @@ if __name__ == '__main__':
     window = MainWindow()
 
     worker.received.connect(window.display)
-    worker.failed.connect(window.handle)
+    worker.failed.connect(window.on_serial_failed)
 
     window.show()
     window.setup()
