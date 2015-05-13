@@ -12,7 +12,7 @@ import pqcom_about_ui
 from PySide.QtGui import *
 from PySide.QtCore import *
 from cStringIO import StringIO
-from util import resource_path, TRANS_TABLE, TRANS_STRING
+from util import resource_path, INTRODUCTION_TEXT, TRANS_TABLE, TRANS_STRING
 import string
 from PySide import QtSvg, QtXml
 from time import sleep
@@ -85,6 +85,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.setupDialog = SetupDialog(self)
         parameters = self.setupDialog.get()
         self.setWindowTitle('pqcom - ' + parameters[0] + ' ' + str(parameters[1]))
+        
+        self.recvTextEdit.insertPlainText(INTRODUCTION_TEXT)
+        self.introduction = True
 
         self.actionNew.setIcon(QIcon(resource_path('img/new.png')))
         self.actionSetup.setIcon(QIcon(resource_path('img/settings.png')))
@@ -280,6 +283,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def run(self, isTrue):
         parameters = self.setupDialog.get()
         if isTrue:
+            if self.introduction:
+                self.recvTextEdit.clear()
             worker.start(parameters)
             self.setWindowTitle('pqcom - ' + parameters[0] + ' ' + str(parameters[1]) + ' opened')
         else:
