@@ -16,7 +16,9 @@ from util import resource_path, INTRODUCTION_TEXT, TRANS_TABLE, TRANS_STRING
 import string
 from PySide import QtSvg, QtXml
 from time import sleep
+import pickle
 
+PQCOM_DATA_FILE = os.path.join(os.path.expanduser('~'), '.pqcom_data')
 ICON_LIB = {'N': 'img/normal.png', 'H': 'img/hex2.png', 'E': 'img/ext.png'}
 
 DEFAULT_EOF = '\n'
@@ -73,9 +75,16 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         super(MainWindow, self).__init__(parent)
         self.setupUi(self)
 
+        self.collections = []
+        try:
+            saved = open(PQCOM_DATA_FILE, 'r+');
+            self.collections = pickle.load(saved)
+            saved.close()
+        except:
+            pass
+
         self.inputHistory = ''
         self.outputHistory = []
-        self.collections = []
         self.repeater = Repeater()
 
         self.setWindowIcon(QIcon(resource_path('img/pqcom-logo.png')))
@@ -131,7 +140,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.collectActions = []
         self.collectMenu = QMenu(self)
-        self.collectMenu.addAction('None')
+        self.collectMenu.setTearOffEnabled(True)
+        if len(self.collections) == 0:
+            self.collectMenu.addAction('None')
+        else:
+             for item in self.collections:
+                icon = QIcon(resource_path(ICON_LIB[item[0]]))
+                action = self.collectMenu.addAction(icon, item[1])
+                self.collectActions.append(action)
+
         self.collectButton.setMenu(self.collectMenu)
         self.collectButton.setIcon(QIcon(resource_path('img/star.png')))
 
@@ -154,6 +171,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # self.historyButton.setVisible(False)
 
     def new(self):
+        if len(self.collections) != 0:
+            save = open(PQCOM_DATA_FILE, 'w')
+            pickle.dump(self.collections, save)
+            save.close()
+
         args = sys.argv
         if args != [sys.executable]:
             args = [sys.executable] + args
@@ -367,6 +389,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def clear(self):
         self.recvTextEdit.clear()
         self.inputHistory = ''
+
+    def closeEvent(self, event):
+        if len(self.collections) != 0:
+            save = open(PQCOM_DATA_FILE, 'w')
+            pickle.dump(self.collections, save)
+            save.close()
+
+        event.accept()
 
 class Repeater():
     def __init__(self):
