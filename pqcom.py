@@ -1,4 +1,3 @@
-
 import sys
 import os
 import subprocess
@@ -25,11 +24,13 @@ DEFAULT_EOF = '\n'
 txqueue = Queue.Queue()
 rxqueue = Queue.Queue()
 
+
 class AboutDialog(QDialog, pqcom_about_ui.Ui_Dialog):
     def __init__(self, parent=None):
         super(AboutDialog, self).__init__(parent)
         self.setupUi(self)
         self.setWindowFlags(self.windowFlags() ^ Qt.WindowContextHelpButtonHint)
+
 
 class SetupDialog(QDialog, pqcom_setup_ui.Ui_Dialog):
     def __init__(self, parent=None):
@@ -58,7 +59,8 @@ class SetupDialog(QDialog, pqcom_setup_ui.Ui_Dialog):
             self.portComboBox.clear()
             for port in list_ports.comports():
                 name = port[0]
-                if name.startswith('/dev/ttyACM') or name.startswith('/dev/ttyUSB') or name.startswith('COM') or name.startswith('/dev/cu.usb'):
+                if name.startswith('/dev/ttyACM') or name.startswith('/dev/ttyUSB') or name.startswith(
+                        'COM') or name.startswith('/dev/cu.usb'):
                     self.portComboBox.addItem(name)
 
     def get(self):
@@ -70,6 +72,7 @@ class SetupDialog(QDialog, pqcom_setup_ui.Ui_Dialog):
 
         return (port, baud, databits, stopbits, parity)
 
+
 class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self, parent=None):
         super(MainWindow, self).__init__(parent)
@@ -77,7 +80,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.collections = []
         try:
-            saved = open(PQCOM_DATA_FILE, 'r+');
+            saved = open(PQCOM_DATA_FILE, 'r');
             self.collections = pickle.load(saved)
             saved.close()
         except:
@@ -94,9 +97,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.setupDialog = SetupDialog(self)
         parameters = self.setupDialog.get()
         self.setWindowTitle('pqcom - ' + parameters[0] + ' ' + str(parameters[1]))
-        
-        self.recvTextEdit.insertPlainText(INTRODUCTION_TEXT)
-        self.introduction = True
+
+        #.recvTextEdit.insertPlainText(INTRODUCTION_TEXT)
+        self.introduction = False
 
         self.actionNew.setIcon(QIcon(resource_path('img/new.png')))
         self.actionSetup.setIcon(QIcon(resource_path('img/settings.png')))
@@ -144,13 +147,25 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if len(self.collections) == 0:
             self.collectMenu.addAction('None')
         else:
-             for item in self.collections:
+            for item in self.collections:
                 icon = QIcon(resource_path(ICON_LIB[item[0]]))
                 action = self.collectMenu.addAction(icon, item[1])
                 self.collectActions.append(action)
 
         self.collectButton.setMenu(self.collectMenu)
         self.collectButton.setIcon(QIcon(resource_path('img/star.png')))
+
+        self.collectMenu.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.connect(self.collectMenu, QtCore.SIGNAL('customContextMenuRequested(const QPoint&)'),
+                     self.on_collect_context_menu)
+        self.collectContextMenu = QMenu(self)
+        self.removeCollectionAction = QAction('Remove', self)
+        self.removeAllCollectionsAction = QAction('Remove all', self)
+        self.collectContextMenu.addAction(self.removeCollectionAction)
+        self.collectContextMenu.addAction(self.removeAllCollectionsAction)
+
+        self.removeCollectionAction.triggered.connect(self.remove_collection)
+        self.removeAllCollectionsAction.triggered.connect(self.remove_all_collections)
 
         self.sendButton.clicked.connect(self.send)
         self.repeatCheckBox.toggled.connect(self.repeat)
@@ -214,10 +229,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         # record history
         record = [type, raw, data]
-        try:
+        if record in self.outputHistory:
             self.outputHistory.remove(record)
-        except ValueError as e:
-            pass
+
         self.outputHistory.insert(0, record)
 
         self.outputHistoryActions = []
@@ -265,10 +279,17 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             type = 'E'
 
         item = [type, raw]
+        if item in self.collections:
+            return
+
         self.collections.append(item)
         icon = QIcon(resource_path(ICON_LIB[type]))
         action = self.collectMenu.addAction(icon, raw)
         self.collectActions.append(action)
+
+    def on_collect_context_menu(self, point):
+        self.activeCollectAction = self.collectMenu.activeAction()
+        self.collectContextMenu.exec_(self.collectMenu.mapToGlobal(point))
 
     def on_collect_item_clicked(self, action):
         index = None
@@ -288,6 +309,35 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.sendPlainTextEdit.clear()
         self.sendPlainTextEdit.insertPlainText(raw)
 
+    def remove_collection(self):
+        index = None
+        try:
+            index = self.collectActions.index(self.activeCollectAction)
+        except ValueError as e:
+            return
+
+        del self.collectActions[index]
+        del self.collections[index]
+
+        self.collectMenu.clear()
+        for item in self.collections:
+            icon = QIcon(resource_path(ICON_LIB[item[0]]))
+            action = self.collectMenu.addAction(icon, item[1])
+            self.collectActions.append(action)
+
+        save = open(PQCOM_DATA_FILE, 'w')
+        pickle.dump(self.collections, save)
+        save.close()
+
+    def remove_all_collections(self):
+        self.collectMenu.clear()
+        self.collections = []
+        self.collectActions = []
+        self.collectMenu.addAction('None')
+
+        save = open(PQCOM_DATA_FILE, 'w')
+        save.close()
+        pickle.dump(self.collections, save)
 
     def on_serial_failed(self):
         self.actionRun.setChecked(False)
@@ -318,13 +368,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             return
 
         data = rxqueue.get()
-        self.inputHistory += data      # store history data
+        self.inputHistory += data  # store history data
 
         if self.actionHex.isChecked():
             data = self.hex(data)
         else:
             pass
-            #data = data.translate(TRANS_TABLE)
+            # data = data.translate(TRANS_TABLE)
 
         self.recvTextEdit.moveCursor(QTextCursor.End)
         self.recvTextEdit.insertPlainText(data)
@@ -336,7 +386,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             text = self.hex(self.inputHistory)
         else:
             text = self.inputHistory
-            #text = self.inputHistory.translate(TRANS_TABLE)
+            # text = self.inputHistory.translate(TRANS_TABLE)
 
         self.recvTextEdit.clear()
         self.recvTextEdit.insertPlainText(text)
@@ -391,12 +441,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.inputHistory = ''
 
     def closeEvent(self, event):
-        if len(self.collections) != 0:
-            save = open(PQCOM_DATA_FILE, 'w')
-            pickle.dump(self.collections, save)
-            save.close()
+        save = open(PQCOM_DATA_FILE, 'w')
+        pickle.dump(self.collections, save)
+        save.close()
 
         event.accept()
+
 
 class Repeater():
     def __init__(self):
@@ -422,6 +472,7 @@ class Repeater():
             sleep(self.period)
         print('repeater thread exits')
 
+
 class Worker(QObject):
     received = Signal()
     failed = Signal()
@@ -441,11 +492,11 @@ class Worker(QObject):
     def start(self, parameters):
         self.parameters = parameters
         try:
-            self.serial = serial.Serial(port = parameters[0],
-                                        baudrate = parameters[1],
-                                        bytesize = parameters[2],
-                                        stopbits = parameters[3],
-                                        timeout  = 0.2)
+            self.serial = serial.Serial(port=parameters[0],
+                                        baudrate=parameters[1],
+                                        bytesize=parameters[2],
+                                        stopbits=parameters[3],
+                                        timeout=0.2)
             self.stopevent.set()
             self.txthread = threading.Thread(target=self.send)
             self.rxthread = threading.Thread(target=self.recv)
@@ -469,7 +520,6 @@ class Worker(QObject):
     @Slot(str)
     def put(self, data):
         self.txqueue.put(data)
-
 
     def send(self):
         print('tx thread is started')
@@ -503,6 +553,7 @@ class Worker(QObject):
                 self.failed.emit()
 
         print('rx thread exits')
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
