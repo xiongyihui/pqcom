@@ -2,17 +2,14 @@ import sys
 import os
 import subprocess
 import threading
-import Queue
-import serial
-from serial.tools import list_ports
+import pqcom_serial
+
 from pqcom_ui import *
 import pqcom_setup_ui
 import pqcom_about_ui
 from PySide.QtGui import *
 from PySide.QtCore import *
-from cStringIO import StringIO
 from util import resource_path, INTRODUCTION_TEXT, TRANS_TABLE, TRANS_STRING
-import string
 from PySide import QtSvg, QtXml
 from time import sleep
 import pickle
@@ -21,8 +18,7 @@ PQCOM_DATA_FILE = os.path.join(os.path.expanduser('~'), '.pqcom_data')
 ICON_LIB = {'N': 'img/normal.png', 'H': 'img/hex2.png', 'E': 'img/ext.png'}
 
 DEFAULT_EOF = '\n'
-txqueue = Queue.Queue()
-rxqueue = Queue.Queue()
+serial = None
 
 
 class AboutDialog(QDialog, pqcom_about_ui.Ui_Dialog):
@@ -43,8 +39,8 @@ class SetupDialog(QDialog, pqcom_setup_ui.Ui_Dialog):
 
         self.portComboBox.clicked.connect(self.refresh)
 
-    def show(self, hasError=False):
-        if hasError:
+    def show(self, warning=False):
+        if warning:
             self.portComboBox.setStyleSheet('QComboBox {color: red;}')
         else:
             self.refresh()
@@ -53,41 +49,40 @@ class SetupDialog(QDialog, pqcom_setup_ui.Ui_Dialog):
 
     def refresh(self):
         self.portComboBox.setStyleSheet('QComboBox {color: black;}')
-        ports = list_ports.comports()
-        if ports != self.ports:
+        ports = pqcom_serial.get_ports()
+        if self.ports != ports:
             self.ports = ports
-            self.portComboBox.clear()
-            for port in list_ports.comports():
-                name = port[0]
-                if name.startswith('/dev/ttyACM') or name.startswith('/dev/ttyUSB') or name.startswith(
-                        'COM') or name.startswith('/dev/cu.'):
-                    self.portComboBox.addItem(name)
+            for port in ports:
+                self.portComboBox.addItem(port)
 
     def get(self):
         port = str(self.portComboBox.currentText())
         baud = int(self.baudComboBox.currentText())
-        databits = int(self.dataComboBox.currentText())
+        bytebits = int(self.dataComboBox.currentText())
         stopbits = int(self.stopbitComboBox.currentText())
         parity = str(self.parityComboBox.currentText())[0]
 
-        return (port, baud, databits, stopbits, parity)
+        return port, baud, bytebits, stopbits, parity
 
 
 class MainWindow(QMainWindow, Ui_MainWindow):
+    serial_failed = Signal()
+    data_received = Signal()
+
     def __init__(self, parent=None):
         super(MainWindow, self).__init__(parent)
         self.setupUi(self)
 
         self.collections = []
         try:
-            saved = open(PQCOM_DATA_FILE, 'r');
+            saved = open(PQCOM_DATA_FILE, 'r')
             self.collections = pickle.load(saved)
             saved.close()
-        except:
+        except IOError:
             pass
 
-        self.inputHistory = ''
-        self.outputHistory = []
+        self.input_history = ''
+        self.output_history = []
         self.repeater = Repeater()
 
         self.setWindowIcon(QIcon(resource_path('img/pqcom-logo.png')))
@@ -95,11 +90,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.aboutDialog = AboutDialog(self)
 
         self.setupDialog = SetupDialog(self)
-        parameters = self.setupDialog.get()
-        self.setWindowTitle('pqcom - ' + parameters[0] + ' ' + str(parameters[1]))
-
-        #.recvTextEdit.insertPlainText(INTRODUCTION_TEXT)
-        self.introduction = False
+        port, baud, bytebits, stopbits, parity = self.setupDialog.get()
+        self.setWindowTitle('pqcom - ' + port + ' ' + str(baud))
 
         self.actionNew.setIcon(QIcon(resource_path('img/new.png')))
         self.actionSetup.setIcon(QIcon(resource_path('img/settings.png')))
@@ -164,6 +156,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.collectContextMenu.addAction(self.removeCollectionAction)
         self.collectContextMenu.addAction(self.removeAllCollectionsAction)
 
+        self.activeCollectAction = None
+
         self.removeCollectionAction.triggered.connect(self.remove_collection)
         self.removeAllCollectionsAction.triggered.connect(self.remove_all_collections)
 
@@ -179,17 +173,18 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.collectButton.clicked.connect(self.collect)
         self.collectMenu.triggered.connect(self.on_collect_item_clicked)
 
+        self.serial_failed.connect(self.handle_serial_error)
+        self.data_received.connect(self.display)
+
         QShortcut(QtGui.QKeySequence('Ctrl+Return'), self.sendPlainTextEdit, self.send)
 
         # self.extendRadioButton.setVisible(False)
         self.periodSpinBox.setVisible(False)
-        # self.historyButton.setVisible(False)
 
     def new(self):
-        if len(self.collections) != 0:
-            save = open(PQCOM_DATA_FILE, 'w')
-            pickle.dump(self.collections, save)
-            save.close()
+        save = open(PQCOM_DATA_FILE, 'w')
+        pickle.dump(self.collections, save)
+        save.close()
 
         args = sys.argv
         if args != [sys.executable]:
@@ -205,7 +200,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         raw = str(self.sendPlainTextEdit.toPlainText())
         data = raw
-        type = 'N'
+        form = 'N'
         if self.normalRadioButton.isChecked():
             if self.actionAppendEol.isChecked():
                 data += '\n'
@@ -215,35 +210,35 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             elif self.actionUseCR.isChecked():
                 data = data.replace('\n', '\r')
         elif self.hexRadioButton.isChecked():
-            type = 'H'
+            form = 'H'
             data = str(bytearray.fromhex(data.replace('\n', ' ')))
         else:
-            type = 'E'
+            form = 'E'
             data = data.strip('\n').replace('\\n', '\n').replace('\\r', '\r')
 
         if self.repeatCheckBox.isChecked():
             self.repeater.start(data, self.periodSpinBox.value())
             self.sendButton.setText('Stop')
         else:
-            txqueue.put(data);
+            serial.write(data)
 
         # record history
-        record = [type, raw, data]
-        if record in self.outputHistory:
-            self.outputHistory.remove(record)
+        record = [form, raw, data]
+        if record in self.output_history:
+            self.output_history.remove(record)
 
-        self.outputHistory.insert(0, record)
+        self.output_history.insert(0, record)
 
         self.outputHistoryActions = []
         self.outputHistoryMenu.clear()
-        for item in self.outputHistory:
+        for item in self.output_history:
             icon = QIcon(resource_path(ICON_LIB[item[0]]))
 
             action = self.outputHistoryMenu.addAction(icon, item[1])
             self.outputHistoryActions.append(action)
 
-    def repeat(self, isTrue):
-        if isTrue:
+    def repeat(self, is_true):
+        if is_true:
             self.periodSpinBox.setVisible(True)
             self.sendButton.setText('Start')
         else:
@@ -255,12 +250,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         try:
             index = self.outputHistoryActions.index(action)
         except ValueError as e:
+            print(e)
             return
 
-        type, raw, data = self.outputHistory[index]
-        if type == 'H':
+        form, raw, data = self.output_history[index]
+        if form == 'H':
             self.hexRadioButton.setChecked(True)
-        elif type == 'E':
+        elif form == 'E':
             self.extendRadioButton.setChecked(True)
         else:
             self.normalRadioButton.setChecked(True)
@@ -272,18 +268,18 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if not self.collections:
             self.collectMenu.clear()
         raw = str(self.sendPlainTextEdit.toPlainText())
-        type = 'N'
+        form = 'N'
         if self.hexRadioButton.isChecked():
-            type = 'H'
+            form = 'H'
         elif self.extendRadioButton.isChecked():
-            type = 'E'
+            form = 'E'
 
-        item = [type, raw]
+        item = [form, raw]
         if item in self.collections:
             return
 
         self.collections.append(item)
-        icon = QIcon(resource_path(ICON_LIB[type]))
+        icon = QIcon(resource_path(ICON_LIB[form]))
         action = self.collectMenu.addAction(icon, raw)
         self.collectActions.append(action)
 
@@ -298,10 +294,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         except ValueError as e:
             return
 
-        type, raw = self.collections[index]
-        if type == 'H':
+        form, raw = self.collections[index]
+        if form == 'H':
             self.hexRadioButton.setChecked(True)
-        elif type == 'E':
+        elif form == 'E':
             self.extendRadioButton.setChecked(True)
         else:
             self.normalRadioButton.setChecked(True)
@@ -340,35 +336,34 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         pickle.dump(self.collections, save)
 
     def on_serial_failed(self):
+        self.seriel_failed.emit()
+
+    def handle_serial_error(self):
         self.actionRun.setChecked(False)
         self.setup(True)
 
-    def setup(self, hasError=False):
-        choice = self.setupDialog.show(hasError)
+    def on_data_received(self):
+        self.data_received.emit()
+
+    def setup(self, warning=False):
+        choice = self.setupDialog.show(warning)
         if choice == QDialog.Accepted:
             if self.actionRun.isChecked():
                 self.actionRun.setChecked(False)
             self.actionRun.setChecked(True)
-        else:
-            print('close')
 
-    def run(self, isTrue):
-        parameters = self.setupDialog.get()
-        if isTrue:
-            if self.introduction:
-                self.recvTextEdit.clear()
-            worker.start(parameters)
-            self.setWindowTitle('pqcom - ' + parameters[0] + ' ' + str(parameters[1]) + ' opened')
+    def run(self, is_true):
+        port, baud, bytebits, stopbits, parity = self.setupDialog.get()
+        if is_true:
+            serial.start(port, baud, bytebits, stopbits, parity)
+            self.setWindowTitle('pqcom - ' + port + ' ' + str(baud) + ' opened')
         else:
-            worker.join()
-            self.setWindowTitle('pqcom - ' + parameters[0] + ' ' + str(parameters[1]) + ' closed')
+            serial.join()
+            self.setWindowTitle('pqcom - ' + port + ' ' + str(baud) + ' closed')
 
     def display(self):
-        if rxqueue.empty():
-            return
-
-        data = rxqueue.get()
-        self.inputHistory += data  # store history data
+        data = serial.read()
+        self.input_history += data  # store history data
 
         if self.actionHex.isChecked():
             data = self.hex(data)
@@ -383,9 +378,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def convert(self, is_true):
         text = None
         if is_true:
-            text = self.hex(self.inputHistory)
+            text = self.hex(self.input_history)
         else:
-            text = self.inputHistory
+            text = self.input_history
             # text = self.inputHistory.translate(TRANS_TABLE)
 
         self.recvTextEdit.clear()
@@ -438,7 +433,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def clear(self):
         self.recvTextEdit.clear()
-        self.inputHistory = ''
+        self.input_history = ''
 
     def closeEvent(self, event):
         save = open(PQCOM_DATA_FILE, 'w')
@@ -448,123 +443,40 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         event.accept()
 
 
-class Repeater():
+class Repeater(object):
     def __init__(self):
-        self.stopevent = threading.Event()
+        self.stop_event = threading.Event()
+        self.period = 1
+        self.thread = None
 
-    def setPeriod(self, period):
+    def set_period(self, period):
         self.period = period
 
     def start(self, data, period):
-        self.stopevent.clear()
-        self.data = data
+        self.stop_event.clear()
         self.period = period
-        self.thread = threading.Thread(target=self.repeat)
+        self.thread = threading.Thread(target=self.repeat, args=(data,))
         self.thread.start()
 
     def stop(self):
-        self.stopevent.set()
+        self.stop_event.set()
 
-    def repeat(self):
+    def repeat(self, data):
         print('repeater thread is started')
-        while not self.stopevent.is_set():
-            worker.put(self.data)
+        while not self.stop_event.is_set():
+            serial.write(data)
             sleep(self.period)
         print('repeater thread exits')
 
 
-class Worker(QObject):
-    received = Signal()
-    failed = Signal()
-
-    def __init__(self, txqueue, rxqueue):
-        super(Worker, self).__init__()
-
-        self.serial = None
-        self.parameters = None
-        self.stopevent = threading.Event()
-        self.txqueue = txqueue
-        self.rxqueue = rxqueue
-
-        self.txthread = None
-        self.rxthread = None
-
-    def start(self, parameters):
-        self.parameters = parameters
-        try:
-            self.serial = serial.Serial(port=parameters[0],
-                                        baudrate=parameters[1],
-                                        bytesize=parameters[2],
-                                        stopbits=parameters[3],
-                                        timeout=0.2)
-            self.stopevent.set()
-            self.txthread = threading.Thread(target=self.send)
-            self.rxthread = threading.Thread(target=self.recv)
-            self.stopevent.clear()
-            self.txthread.start()
-            self.rxthread.start()
-
-        except IOError as e:
-            print(e)
-            self.failed.emit()
-
-    def join(self):
-        self.stopevent.set()
-        if self.txthread:
-            self.txthread.join()
-            self.rxthread.join()
-
-        if self.serial:
-            self.serial.close()
-
-    @Slot(str)
-    def put(self, data):
-        self.txqueue.put(data)
-
-    def send(self):
-        print('tx thread is started')
-        while not self.stopevent.is_set():
-            try:
-                data = self.txqueue.get(True, 1)
-                print('tx:' + data)
-                self.serial.write(data)
-            except Queue.Empty:
-                continue
-            except IOError as e:
-                self.serial.close()
-                self.stopevent.set()
-                self.failed.emit()
-
-        print('tx thread exits')
-
-    def recv(self):
-        print('rx thread is started')
-        while not self.stopevent.is_set():
-            try:
-                data = self.serial.read(1024)
-
-                if data and len(data) > 0:
-                    print('rx:' + data)
-                    self.rxqueue.put(data)
-                    self.received.emit()
-            except IOError as e:
-                self.serial.close()
-                self.stopevent.set()
-                self.failed.emit()
-
-        print('rx thread exits')
-
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    worker = Worker(txqueue, rxqueue)
     window = MainWindow()
-
-    worker.received.connect(window.display)
-    worker.failed.connect(window.on_serial_failed)
+    serial = pqcom_serial.Serial(window.on_data_received, window.on_serial_failed)
 
     window.show()
     window.setup()
     app.exec_()
-    worker.join()
+    serial.join()
     sys.exit(0)
