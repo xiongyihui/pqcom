@@ -49,7 +49,7 @@ from time import sleep
 import pickle
 
 PQCOM_DATA_FILE = os.path.join(os.path.expanduser('~'), '.pqcom_data')
-ICON_LIB = {'N': 'img/normal.png', 'H': 'img/hex2.png', 'E': 'img/ext.png'}
+ICON_LIB = {'N': 'img/normal.svg', 'H': 'img/hex2.svg', 'E': 'img/ext.svg'}
 
 DEFAULT_EOF = '\n'
 serial = None
@@ -127,12 +127,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         port, baud, bytebits, stopbits, parity = self.setupDialog.get()
         self.setWindowTitle('pqcom - ' + port + ' ' + str(baud))
 
-        self.actionNew.setIcon(QIcon(resource_path('img/new.png')))
-        self.actionSetup.setIcon(QIcon(resource_path('img/settings.png')))
-        self.actionRun.setIcon(QIcon(resource_path('img/run.png')))
-        self.actionHex.setIcon(QIcon(resource_path('img/hex.png')))
-        self.actionClear.setIcon(QIcon(resource_path('img/clear.png')))
-        self.actionAbout.setIcon(QIcon(resource_path('img/about.png')))
+        self.actionNew.setIcon(QIcon(resource_path('img/new.svg')))
+        self.actionSetup.setIcon(QIcon(resource_path('img/settings.svg')))
+        self.actionRun.setIcon(QIcon(resource_path('img/run.svg')))
+        self.actionHex.setIcon(QIcon(resource_path('img/hex.svg')))
+        self.actionClear.setIcon(QIcon(resource_path('img/clear.svg')))
+        self.actionAbout.setIcon(QIcon(resource_path('img/about.svg')))
 
         self.actionUseCR = QAction('EOL - \\r', self)
         self.actionUseCR.setCheckable(True)
@@ -175,7 +175,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 self.collectActions.append(action)
 
         self.collectButton.setMenu(self.collectMenu)
-        self.collectButton.setIcon(QIcon(resource_path('img/star.png')))
+        self.collectButton.setIcon(QIcon(resource_path('img/star.svg')))
 
         self.collectMenu.setContextMenuPolicy(Qt.CustomContextMenu)
         self.connect(self.collectMenu, QtCore.SIGNAL('customContextMenuRequested(const QPoint&)'),
