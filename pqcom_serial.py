@@ -5,6 +5,10 @@ import threading
 import Queue
 import logging
 
+PARITY_DICT = {'None': serial.PARITY_NONE, 'Even': serial.PARITY_EVEN,
+               'Odd': serial.PARITY_ODD, 'Mask': serial.PARITY_MARK,
+               'Space': serial.PARITY_SPACE}
+
 def get_ports():
     ports = []
     for comport in list_ports.comports():
@@ -39,7 +43,7 @@ class Serial(object):
                                         baudrate=baud,
                                         bytesize=bytesize,
                                         stopbits=stopbits,
-                                        parity=parity,
+                                        parity=PARITY_DICT[parity],
                                         timeout=0.2)
             self.stop_event.set()
             self.tx_thread = threading.Thread(target=self._send)

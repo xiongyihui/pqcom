@@ -1,3 +1,37 @@
+'''
++------------------------------------------------------------------+
+| pq                      pqcom                              - + x |
++------------------------------------------------------------------+
+| + | > | = | H | X | i |                                          |
++------------------------------------------------------------------+
+| |   |   |   |   |   |                      |
+| |   |   |   |   |   +---> Open about dialog                      |
+| |   |   |   |   |                                                |
+| |   |   |   |   +-------> Clear received message                 |
+| |   |   |   |                                                    |
+| |   |   |   +-----------> Enable/Disable Hex View                |
+| |   |   |                                                        |
+| |   |   +---------------> Open settings dialog                   |
+| |   |                                                            |
+| |   +-------------------> Open/Close serial port                 |
+| |                                                                |
+| +-----------------------> Open a new window                      |
+|                                                                  |
+|                                                                  |
+|                                                                  |
+|                                                                  |
+|                                                                  |
+|                                                                  |
++------------------------------------------------------------------+
+|                                                                  |
+|  Keyboard Shortcut                                               |
+|      Ctrl + Enter: Send                                          |
+|                                                                  |
++------------------------------------------------------------------+
+| + Normal | O Hex | O Extend | * | History |    | # Repeat | Send |
++------------------------------------------------------------------+
+'''
+
 import sys
 import os
 import subprocess
@@ -9,7 +43,7 @@ import pqcom_setup_ui
 import pqcom_about_ui
 from PySide.QtGui import *
 from PySide.QtCore import *
-from util import resource_path, INTRODUCTION_TEXT, TRANS_TABLE, TRANS_STRING
+from util import resource_path, TRANS_TABLE, TRANS_STRING
 from PySide import QtSvg, QtXml
 from time import sleep
 import pickle
@@ -60,7 +94,7 @@ class SetupDialog(QDialog, pqcom_setup_ui.Ui_Dialog):
         baud = int(self.baudComboBox.currentText())
         bytebits = int(self.dataComboBox.currentText())
         stopbits = int(self.stopbitComboBox.currentText())
-        parity = str(self.parityComboBox.currentText())[0]
+        parity = str(self.parityComboBox.currentText())
 
         return port, baud, bytebits, stopbits, parity
 
