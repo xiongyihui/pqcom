@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'pqcom.ui'
 #
-# Created: Tue Apr 28 10:55:39 2015
+# Created: Sun May 31 17:14:22 2015
 #      by: pyside-uic 0.2.15 running on PySide 1.2.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -61,6 +61,12 @@ class Ui_MainWindow(object):
         self.extendRadioButton.setObjectName("extendRadioButton")
         self.horizontalLayout.addWidget(self.extendRadioButton)
         self.collectButton = QtGui.QToolButton(self.centralwidget)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.collectButton.sizePolicy().hasHeightForWidth())
+        self.collectButton.setSizePolicy(sizePolicy)
+        self.collectButton.setMinimumSize(QtCore.QSize(0, 20))
         self.collectButton.setText("")
         self.collectButton.setPopupMode(QtGui.QToolButton.MenuButtonPopup)
         self.collectButton.setObjectName("collectButton")
@@ -90,7 +96,7 @@ class Ui_MainWindow(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.sendButton.sizePolicy().hasHeightForWidth())
         self.sendButton.setSizePolicy(sizePolicy)
-        self.sendButton.setMinimumSize(QtCore.QSize(80, 20))
+        self.sendButton.setMinimumSize(QtCore.QSize(80, 0))
         self.sendButton.setStyleSheet("")
         self.sendButton.setPopupMode(QtGui.QToolButton.MenuButtonPopup)
         self.sendButton.setToolButtonStyle(QtCore.Qt.ToolButtonIconOnly)
@@ -143,7 +149,7 @@ class Ui_MainWindow(object):
         MainWindow.setWindowTitle(QtGui.QApplication.translate("MainWindow", "pqcom", None, QtGui.QApplication.UnicodeUTF8))
         self.normalRadioButton.setText(QtGui.QApplication.translate("MainWindow", "Normal", None, QtGui.QApplication.UnicodeUTF8))
         self.hexRadioButton.setText(QtGui.QApplication.translate("MainWindow", "Hex", None, QtGui.QApplication.UnicodeUTF8))
-        self.extendRadioButton.setText(QtGui.QApplication.translate("MainWindow", "Extend", None, QtGui.QApplication.UnicodeUTF8))
+        self.extendRadioButton.setText(QtGui.QApplication.translate("MainWindow", "Extended", None, QtGui.QApplication.UnicodeUTF8))
         self.historyButton.setText(QtGui.QApplication.translate("MainWindow", "History", None, QtGui.QApplication.UnicodeUTF8))
         self.periodSpinBox.setSuffix(QtGui.QApplication.translate("MainWindow", "s", None, QtGui.QApplication.UnicodeUTF8))
         self.repeatCheckBox.setText(QtGui.QApplication.translate("MainWindow", "Repeat", None, QtGui.QApplication.UnicodeUTF8))

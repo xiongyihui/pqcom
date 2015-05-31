@@ -28,7 +28,7 @@
 |      Ctrl + Enter: Send                                          |
 |                                                                  |
 +------------------------------------------------------------------+
-| + Normal | O Hex | O Extend | * | History |    | # Repeat | Send |
+| + Normal | O Hex | O Extended | * | History |  | # Repeat | Send |
 +------------------------------------------------------------------+
 '''
 
@@ -37,13 +37,13 @@ import os
 import subprocess
 import threading
 import pqcom_serial
-
+import pqcom_translator as translator
 from pqcom_ui import *
 import pqcom_setup_ui
 import pqcom_about_ui
 from PySide.QtGui import *
 from PySide.QtCore import *
-from util import resource_path, TRANS_TABLE, TRANS_STRING
+from util import resource_path
 from PySide import QtSvg, QtXml
 from time import sleep
 import pickle
@@ -156,11 +156,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         popupMenu.addAction(self.actionUseCRLF)
         popupMenu.addSeparator()
         popupMenu.addAction(self.actionAppendEol)
-
         self.sendButton.setMenu(popupMenu)
-        # self.sendButton.setStyleSheet('QToolButton {border: 1px outset rgb(29, 153, 243);}')
-        # self.sendButton.setStyleSheet('QToolButton {border: 1px outset rgb(218, 68, 83);}')
-        # self.sendButton.setIcon(QIcon(resource_path('img/run.png')))
 
         self.outputHistoryActions = []
         self.outputHistoryMenu = QMenu(self)
@@ -245,10 +241,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 data = data.replace('\n', '\r')
         elif self.hexRadioButton.isChecked():
             form = 'H'
-            data = str(bytearray.fromhex(data.replace('\n', ' ')))
+            data = translator.from_hex_string(data)
         else:
             form = 'E'
-            data = data.strip('\n').replace('\\n', '\n').replace('\\r', '\r')
+            data = translator.from_extended_string(data)
 
         if self.repeatCheckBox.isChecked():
             self.repeater.start(data, self.periodSpinBox.value())
@@ -280,11 +276,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.sendButton.setText('Send')
 
     def on_history_item_clicked(self, action):
-        index = None
         try:
             index = self.outputHistoryActions.index(action)
-        except ValueError as e:
-            print(e)
+        except ValueError:
             return
 
         form, raw, data = self.output_history[index]
@@ -322,10 +316,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.collectContextMenu.exec_(self.collectMenu.mapToGlobal(point))
 
     def on_collect_item_clicked(self, action):
-        index = None
         try:
             index = self.collectActions.index(action)
-        except ValueError as e:
+        except ValueError:
             return
 
         form, raw = self.collections[index]
@@ -340,10 +333,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.sendPlainTextEdit.insertPlainText(raw)
 
     def remove_collection(self):
-        index = None
         try:
             index = self.collectActions.index(self.activeCollectAction)
-        except ValueError as e:
+        except ValueError:
             return
 
         del self.collectActions[index]
@@ -400,70 +392,21 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.input_history += data  # store history data
 
         if self.actionHex.isChecked():
-            data = self.hex(data)
-        else:
-            pass
-            # data = data.translate(TRANS_TABLE)
+            data = translator.to_hex_prefix_string(data)
 
         self.recvTextEdit.moveCursor(QTextCursor.End)
         self.recvTextEdit.insertPlainText(data)
         self.recvTextEdit.moveCursor(QTextCursor.End)
 
     def convert(self, is_true):
-        text = None
         if is_true:
-            text = self.hex(self.input_history)
+            text = translator.to_hex_prefix_string(self.input_history)
         else:
             text = self.input_history
-            # text = self.inputHistory.translate(TRANS_TABLE)
 
         self.recvTextEdit.clear()
         self.recvTextEdit.insertPlainText(text)
         self.recvTextEdit.moveCursor(QTextCursor.End)
-
-    def hex(self, data):
-        convertedtext = ''
-        bytesindex = 0
-        hexpart = ''
-        strpart = ''
-        while bytesindex < len(data):
-            ch = data[bytesindex]
-            if ch == '\n':
-                hexpart += '0A' + ' '
-                strpart += '.'
-
-                convertedtext += hexpart.ljust(52) + strpart + '\n'
-                hexpart = ''
-                strpart = ''
-            elif ch == '\r':
-                hexpart += '0D' + ' '
-                strpart += '.'
-
-                if ((bytesindex + 1) < len(data)) and (data[bytesindex + 1] == '\n'):
-                    hexpart += '0A' + ' '
-                    strpart += '.'
-                    bytesindex += 1
-
-                convertedtext += hexpart.ljust(52) + strpart + '\n'
-                hexpart = ''
-                strpart = ''
-            else:
-                hexpart += '{:02X}'.format(ord(ch)) + ' '
-                if ch < '\x20' or ch > '\x7F':
-                    ch = '.'
-                strpart += ch
-
-            if len(strpart) >= 16:
-                convertedtext += hexpart.ljust(52) + strpart + '\n'
-                hexpart = ''
-                strpart = ''
-
-            bytesindex += 1
-
-        if strpart:
-            convertedtext += hexpart.ljust(52) + strpart + '\n'
-
-        return convertedtext
 
     def clear(self):
         self.recvTextEdit.clear()

@@ -112,7 +112,7 @@
       <item>
        <widget class="QRadioButton" name="extendRadioButton">
         <property name="text">
-         <string>Extend</string>
+         <string>Extended</string>
         </property>
        </widget>
       </item>
