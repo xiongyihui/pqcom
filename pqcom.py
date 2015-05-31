@@ -49,7 +49,7 @@ from time import sleep
 import pickle
 
 PQCOM_DATA_FILE = os.path.join(os.path.expanduser('~'), '.pqcom_data')
-ICON_LIB = {'N': 'img/normal.svg', 'H': 'img/hex2.svg', 'E': 'img/ext.svg'}
+ICON_LIB = {'N': 'img/normal.svg', 'H': 'img/0x.svg', 'E': 'img/ex.svg'}
 
 DEFAULT_EOF = '\n'
 serial = None

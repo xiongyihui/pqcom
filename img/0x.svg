@@ -14,7 +14,7 @@
    id="svg4355"
    version="1.1"
    inkscape:version="0.91 r13725"
-   sodipodi:docname="hex2.svg"
+   sodipodi:docname="0x.svg"
    inkscape:export-filename="D:\image\plasma-next-icons\Breeze\actions\toolbar\hex2.png"
    inkscape:export-xdpi="261.82001"
    inkscape:export-ydpi="261.82001">
@@ -27,9 +27,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="13.743054"
-     inkscape:cx="4.0460312"
-     inkscape:cy="1.6864234"
+     inkscape:zoom="18.674682"
+     inkscape:cx="18.096599"
+     inkscape:cy="13.096564"
      inkscape:document-units="px"
      inkscape:current-layer="g3849-4"
      showgrid="true"
@@ -46,7 +46,7 @@
      inkscape:window-maximized="1"
      inkscape:showpageshadow="false"
      inkscape:snap-bbox="true"
-     inkscape:bbox-nodes="false">
+     inkscape:bbox-nodes="true">
     <inkscape:grid
        type="xygrid"
        id="grid4114" />
@@ -103,36 +103,18 @@
     <g
        transform="translate(-10e-7,-0.5)"
        id="g3849-4">
-      <path
-         inkscape:connector-curvature="0"
-         id="rect2992-8-1"
-         d="m 553.58078,751.70333 0,1 0,1.5 0,1 0,2.5 0,1 5,0 0,-1 -4,0 0,-2 4,0 0,-1 -4,0 0,-2 4,0 0,-1 z"
-         style="color:#000000;display:inline;overflow:visible;visibility:visible;fill:#4d4d4d;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1.39999998;marker:none;enable-background:accumulate"
-         sodipodi:nodetypes="ccccccccccccccccc" />
-      <path
-         sodipodi:nodetypes="cc"
-         inkscape:connector-curvature="0"
-         id="path3841-0"
-         d="m 558.57141,750.43359 5,6.5"
-         style="fill:none;stroke:#4d4d4d;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
-      <path
-         sodipodi:nodetypes="cc"
-         inkscape:connector-curvature="0"
-         id="path3843-7"
-         d="m 558.57141,756.93359 5,-6.5"
-         style="fill:none;stroke:#4d4d4d;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
       <text
          xml:space="preserve"
-         style="font-style:normal;font-weight:normal;font-size:40px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#4d4d4d;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-         x="546.65631"
-         y="757.39923"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:48.98854828px;line-height:125%;font-family:'Droid Sans';-inkscape-font-specification:'Droid Sans';letter-spacing:0px;word-spacing:0px;fill:#4d4d4d;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+         x="548.95447"
+         y="758.81396"
          id="text4718"
          sodipodi:linespacing="125%"><tspan
            sodipodi:role="line"
            id="tspan4720"
-           x="546.65631"
-           y="757.39923"
-           style="font-size:10px;fill:#4d4d4d;fill-opacity:1">H</tspan></text>
+           x="548.95447"
+           y="758.81396"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12.24713707px;font-family:'Droid Sans';-inkscape-font-specification:'Droid Sans';fill:#4d4d4d;fill-opacity:1">0x</tspan></text>
     </g>
   </g>
 </svg>

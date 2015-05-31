@@ -14,8 +14,8 @@
    id="svg4355"
    version="1.1"
    inkscape:version="0.91 r13725"
-   sodipodi:docname="ext.svg"
-   inkscape:export-filename="D:\image\plasma-next-icons\Breeze\actions\toolbar\hex2.png"
+   sodipodi:docname="Ex.svg"
+   inkscape:export-filename="C:\Users\ant\Desktop\pqcom\img\ex.png"
    inkscape:export-xdpi="261.82001"
    inkscape:export-ydpi="261.82001">
   <defs
@@ -27,9 +27,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="1.7178818"
-     inkscape:cx="-10.435877"
-     inkscape:cy="-69.736753"
+     inkscape:zoom="18.674682"
+     inkscape:cx="18.096599"
+     inkscape:cy="13.096564"
      inkscape:document-units="px"
      inkscape:current-layer="g3849-4"
      showgrid="true"
@@ -105,17 +105,16 @@
        id="g3849-4">
       <text
          xml:space="preserve"
-         style="font-style:normal;font-weight:normal;font-size:38.51177216px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#4d4d4d;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-         x="332.28061"
-         y="876.72046"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:48.98854828px;line-height:125%;font-family:'Droid Sans';-inkscape-font-specification:'Droid Sans';letter-spacing:0px;word-spacing:0px;fill:#4d4d4d;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+         x="548.79602"
+         y="758.80499"
          id="text4718"
-         sodipodi:linespacing="125%"
-         transform="matrix(0.96592583,-0.25881905,0.25881905,0.96592583,0,0)"><tspan
+         sodipodi:linespacing="125%"><tspan
            sodipodi:role="line"
            id="tspan4720"
-           x="332.28061"
-           y="876.72046"
-           style="font-size:9.62794304px;fill:#4d4d4d;fill-opacity:1">EXT</tspan></text>
+           x="548.79602"
+           y="758.80499"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12.24713707px;font-family:'Droid Sans';-inkscape-font-specification:'Droid Sans';fill:#4d4d4d;fill-opacity:1">Ex</tspan></text>
     </g>
   </g>
 </svg>
