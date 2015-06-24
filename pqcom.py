@@ -6,7 +6,7 @@
 +------------------------------------------------------------------+
 | + | > | = | H | X | i |                                          |
 +------------------------------------------------------------------+
-| |   |   |   |   |   |                      |
+| |   |   |   |   |   |                                            |
 | |   |   |   |   |   +---> Open about dialog                      |
 | |   |   |   |   |                                                |
 | |   |   |   |   +-------> Clear received message                 |
@@ -168,7 +168,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.collectActions = []
         self.collectMenu = QMenu(self)
         self.collectMenu.setTearOffEnabled(True)
-        if len(self.collections) == 0:
+        if not self.collections:
             self.collectMenu.addAction('None')
         else:
             for item in self.collections:

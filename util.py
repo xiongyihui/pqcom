@@ -3,7 +3,7 @@ import sys
 import os
 import string
 
-VERSION = 0.3
+VERSION = 0.4
 
 TRANS_STRING = ''.join(chr(i) for i in range(0, 0x20) + range(0x80, 0x100))
 TRANS_TABLE = string.maketrans(TRANS_STRING, ''.ljust(len(TRANS_STRING), '.'))

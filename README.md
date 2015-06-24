@@ -1,40 +1,9 @@
 ![pqcom](img/pqcom-logo-expanded.png)
-====
+====================================
 
 A simple serial tool for Linux/Windows/Mac. It's written by Python and Qt (PySide).
 
-```
-+------------------------------------------------------------------+
-| pq                      pqcom                             O - X  |
-+------------------------------------------------------------------+
-| + | > | = | H | X | i |                                          |
-+------------------------------------------------------------------+
-| |   |   |   |   |   |                                            |
-| |   |   |   |   |   +---> Open about dialog                      |
-| |   |   |   |   |                                                |
-| |   |   |   |   +-------> Clear received message                 |
-| |   |   |   |                                                    |
-| |   |   |   +-----------> Enable/Disable Hex View                |
-| |   |   |                                                        |
-| |   |   +---------------> Open settings dialog                   |
-| |   |                                                            |
-| |   +-------------------> Open/Close serial port                 |
-| |                                                                |
-| +-----------------------> Open a new window                      |
-|                                                                  |
-|                                                                  |
-|                                                                  |
-+------------------------------------------------------------------+
-|                                                                  |
-|  Keyboard Shortcut                                               |
-|                                                                  |
-|      Ctrl + Enter: Send                                          |
-|                                                                  |
-|                                                                  |
-+------------------------------------------------------------------+
-| + Normal | O Hex | O Extend | * | History |    | # Repeat | Send |
-+------------------------------------------------------------------+
-```
+![pqcom](preview/pqcom.png)
 
 ### Requirements
 
@@ -55,8 +24,7 @@ A simple serial tool for Linux/Windows/Mac. It's written by Python and Qt (PySid
 
 -	Windows
 
-	Go to [release channel](https://github.com/xiongyihui/pqcom/releases) and download executable application.
+	Download it from [Google Drive](https://drive.google.com/file/d/0BwQmZU7Kqh7RVzRVaG9IVFd1REk/view?usp=sharing).
     
 The icons are from [KDE Plasma Breeze Icons](https://github.com/NitruxSA/plasma-next-icons/)
-    
-![pqcom](preview/pqcom.png)
+
