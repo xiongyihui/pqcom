@@ -16,10 +16,7 @@ A simple serial tool for Linux/Windows/Mac. It's written by Python and Qt (PySid
 -	Linux/Mac
 
 	```
-	pip install pyserial
-	pip install pyside
-	git clone https://github.com/xiongyihui/pqcom.git
-	python pqcom/pqcom.py
+	pip install pqcom
 	```
 
 -	Windows
