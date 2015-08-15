@@ -3,7 +3,7 @@ import sys
 import os
 import pkg_resources
 
-VERSION = 0.4
+VERSION = 0.5
 
 script_path = os.path.dirname(sys.argv[0])
 

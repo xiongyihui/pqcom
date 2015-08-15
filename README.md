@@ -15,9 +15,9 @@ A simple serial tool for Linux/Windows/Mac. It's written by Python and Qt (PySid
 
 -	Linux/Mac
 
-	```
-	pip install pqcom
-	```
+	1. install pyside
+	2. use pip to install pqcom - `pip install pqcom`
+
 
 -	Windows
 
