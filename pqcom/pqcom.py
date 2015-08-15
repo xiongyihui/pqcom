@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-'''
+"""
 +------------------------------------------------------------------+
 | pq                      pqcom                              - + x |
 +------------------------------------------------------------------+
@@ -32,7 +32,7 @@
 +------------------------------------------------------------------+
 | + Normal | O Hex | O Extended | * | History |  | # Repeat | Send |
 +------------------------------------------------------------------+
-'''
+"""
 
 import sys
 import os
@@ -447,9 +447,9 @@ class Repeater(object):
             sleep(self.period)
         print('repeater thread exits')
 
+def main():
+    global serial
 
-
-if __name__ == '__main__':
     app = QApplication(sys.argv)
     window = MainWindow()
     serial = pqcom_serial.Serial(window.on_data_received, window.on_serial_failed)
@@ -459,3 +459,6 @@ if __name__ == '__main__':
     app.exec_()
     serial.join()
     sys.exit(0)
+
+if __name__ == '__main__':
+    main()
