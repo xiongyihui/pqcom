@@ -276,6 +276,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         else:
             self.periodSpinBox.setVisible(False)
             self.sendButton.setText('Send')
+            self.repeater.stop()
 
     def on_history_item_clicked(self, action):
         try:
