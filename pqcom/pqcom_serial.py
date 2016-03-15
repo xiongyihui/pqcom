@@ -45,6 +45,8 @@ class Serial(object):
                                         stopbits=stopbits,
                                         parity=PARITY_DICT[parity],
                                         timeout=0.2)
+            self.tx_queue.queue.clear()
+            self.rx_queue.queue.clear()
             self.stop_event.set()
             self.tx_thread = threading.Thread(target=self._send)
             self.rx_thread = threading.Thread(target=self._recv)
