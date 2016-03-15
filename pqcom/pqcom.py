@@ -364,7 +364,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         pickle.dump(self.collections, save)
 
     def on_serial_failed(self):
-        self.seriel_failed.emit()
+        self.serial_failed.emit()
 
     def handle_serial_error(self):
         self.actionRun.setChecked(False)
