@@ -21,6 +21,6 @@ A simple serial tool for Linux/Windows/Mac. It's written by Python and Qt (PySid
 
 -	Windows
 
-	Download it from [Google Drive](https://drive.google.com/file/d/0BwQmZU7Kqh7RVzRVaG9IVFd1REk/view?usp=sharing).
+	Download it from [Google Drive](https://drive.google.com/open?id=0BwQmZU7Kqh7RR3JCRWUzLWhlb28) or [Baidu Pan](http://pan.baidu.com/s/1ski1RUt).
 
 The icons are from [KDE Plasma Breeze Icons](https://github.com/NitruxSA/plasma-next-icons/)

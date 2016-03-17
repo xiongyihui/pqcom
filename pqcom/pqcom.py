@@ -46,7 +46,7 @@ import pqcom_about_ui
 from PySide.QtGui import *
 from PySide.QtCore import *
 from util import resource_path
-from PySide import QtSvg, QtXml
+from PySide import QtSvg
 from time import sleep
 import pickle
 
