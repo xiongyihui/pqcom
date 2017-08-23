@@ -46,6 +46,7 @@ install:
   # PIP installs
   # Install the build dependencies of the project.
   - "pip install wheel"
+  - "pip install pyserial"
   - "pip install pyside"
   # Install pyinstaller (includes dependency for pywin32)
   #- "%WITH_COMPILER% pip install pypiwin32"
@@ -74,7 +75,10 @@ artifacts:
 
 deploy:
   provider: GitHub
+  auth_token:
+    secure: ++lnHbZxWQzt0zIEvBA8ZyQLpT2TS6gTZHridfHZ6kfli1L8xdWaIBlYPlgjH6c9
   artifact: /.*\.exe/, /.*\.whl/
+  description: 'pqcom'
   draft: true
   prerelease: true
   on:
