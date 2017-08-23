@@ -45,7 +45,6 @@ install:
   - "python --version"
   # PIP installs
   # Install the build dependencies of the project.
-  - "pip install cython"
   - "pip install wheel"
   - "pip install pyside"
   # Install pyinstaller (includes dependency for pywin32)
@@ -60,14 +59,13 @@ install:
 build: off
 
 test_script:
-  - 'python -c "import pqcom; print(pqcom.pqcom.__file__)"'
+  - 'python -c "import pqcom.util; print(pqcom.util.VERSION)"'
 
 after_test:
   # If tests are successful, create a whl package for the project.
   - "%WITH_COMPILER% %PYTHON%/python setup.py bdist_wheel"
   - ps: "ls dist"
   # Run pyinstaller
-  # This will create the "win7_innosetup.iss" file
   - "%WITH_COMPILER% pyinstaller pqcom.spec"
 
 artifacts:
