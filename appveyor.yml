@@ -52,7 +52,7 @@ install:
   #- "%WITH_COMPILER% pip install pypiwin32"
   - "%WITH_COMPILER% pip install pyinstaller"
   # Run develop (installs yet missing packages and runs cython)
-  - "%WITH_COMPILER% %PYTHON%/python setup.py build"
+  - "%WITH_COMPILER% %PYTHON%/python setup.py install"
 
   # Show the installed packages
   - "pip freeze"
