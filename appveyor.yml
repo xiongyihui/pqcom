@@ -1,0 +1,84 @@
+# Changes in online interface:
+# - Set build schedule to "0 3 * * *" for nightly builds.
+#skip_commits:
+#  # Do not build on commits. Only nightly builds (web interface)
+#  author: /.*/
+
+
+notifications:
+  - provider: Email
+    on_build_success: false
+    on_build_failure: false
+    on_build_status_changed: false
+
+environment:
+  global:
+    # SDK v7.0 MSVC Express 2008's SetEnv.cmd script will fail if the
+    # /E:ON and /V:ON options are not enabled in the batch script intepreter
+    # See: http://stackoverflow.com/a/13751649/163740
+    WITH_COMPILER: "cmd /E:ON /V:ON /C .\\run_with_compiler.cmd"
+  # https://github.com/appveyor/ci/issues/359
+  matrix:
+    - PYTHON: "C:\\Miniconda"
+      PYTHON_VERSION: "2.7"
+      PYTHON_ARCH: "32"
+    - PYTHON: "C:\\Miniconda-x64"
+      PYTHON_VERSION: "2.7"
+      PYTHON_ARCH: "64"
+
+
+init:
+  - "ECHO %PYTHON% %PYTHON_VERSION% %PYTHON_ARCH%"
+
+install:
+  # Determine platform
+  - '%PYTHON%/python -c "import platform; print platform.uname()"'
+  - '%PYTHON%/python -c "import sys; print sys.maxint"'
+  - '%PYTHON%/python -c "import sys; print sys.version"'
+
+  # Prepend newly installed Python to the PATH of this build (this cannot be
+  # done from inside the powershell script as it would require to restart
+  # the parent CMD process).
+  - "SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
+
+  # Check that we have the expected version and architecture for Python
+  - "python --version"
+  # PIP installs
+  # Install the build dependencies of the project.
+  - "pip install cython"
+  - "pip install wheel"
+  - "pip install pyside"
+  # Install pyinstaller (includes dependency for pywin32)
+  #- "%WITH_COMPILER% pip install pypiwin32"
+  - "%WITH_COMPILER% pip install pyinstaller"
+  # Run develop (installs yet missing packages and runs cython)
+  - "%WITH_COMPILER% %PYTHON%/python setup.py build"
+
+  # Show the installed packages
+  - "pip freeze"
+
+build: off
+
+test_script:
+  - 'python -c "import pqcom; print(pqcom.pqcom.__file__)"'
+
+after_test:
+  # If tests are successful, create a whl package for the project.
+  - "%WITH_COMPILER% %PYTHON%/python setup.py bdist_wheel"
+  - ps: "ls dist"
+  # Run pyinstaller
+  # This will create the "win7_innosetup.iss" file
+  - "%WITH_COMPILER% pyinstaller pqcom.spec"
+
+artifacts:
+  # Archive the generated wheel package in the ci.appveyor.com build report.
+  - path: dist\*
+
+deploy:
+  provider: GitHub
+  artifact: /.*\.exe/, /.*\.whl/
+  draft: true
+  prerelease: true
+  on:
+    branch: master                 # release from master branch only
+    appveyor_repo_tag: true        # deploy on tag push only
