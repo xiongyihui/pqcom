@@ -1,5 +1,7 @@
-![pqcom](img/pqcom/pqcom-logo-expanded.png)
-====================================
+![pqcom](pqcom/img/pqcom-logo-expanded.png)
+===========================================
+
+[![Build status](https://ci.appveyor.com/api/projects/status/qnaototfk70rc7w5?svg=true)](https://ci.appveyor.com/project/xiongyihui/pqcom)
 
 A simple serial tool for Linux/Windows/Mac. It's written by Python and Qt (PySide).
 
