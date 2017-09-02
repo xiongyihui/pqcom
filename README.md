@@ -2,6 +2,7 @@
 ===========================================
 
 [![Build status](https://ci.appveyor.com/api/projects/status/qnaototfk70rc7w5?svg=true)](https://ci.appveyor.com/project/xiongyihui/pqcom)
+[![Pypi](https://img.shields.io/pypi/v/pqcom.svg)](https://pypi.python.org/pypi/pqcom)
 
 A simple serial port tool for Linux/Windows/Mac. It's written by Python and Qt (PySide).
 
