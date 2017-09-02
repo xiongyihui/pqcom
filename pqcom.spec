@@ -1,4 +1,9 @@
 # -*- mode: python -*-
+
+import platform
+
+name = 'pqcom' + platform.architecture()[0][:2] + '.exe'
+
 a = Analysis(['pqcom/pqcom.py'],
              pathex=['pqcom'],
              hiddenimports=[],
@@ -11,7 +16,7 @@ exe = EXE(pyz,
           a.zipfiles,
           a.datas,
           Tree('pqcom/img', 'img'),
-          name='pqcom.exe',
+          name=name,
           debug=False,
           strip=None,
           upx=True,
