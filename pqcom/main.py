@@ -113,7 +113,7 @@ class MainWindow(QMainWindow, main_ui.Ui_MainWindow):
 
         self.collections = []
         try:
-            saved = open(PQCOM_DATA_FILE, 'rb')
+            saved = open(PQCOM_DATA_FILE, 'r')
             self.collections = pickle.load(saved)
             saved.close()
         except IOError:
@@ -216,7 +216,7 @@ class MainWindow(QMainWindow, main_ui.Ui_MainWindow):
         self.periodSpinBox.setVisible(False)
 
     def new(self):
-        save = open(PQCOM_DATA_FILE, 'wb')
+        save = open(PQCOM_DATA_FILE, 'w')
         pickle.dump(self.collections, save)
         save.close()
 
@@ -352,7 +352,7 @@ class MainWindow(QMainWindow, main_ui.Ui_MainWindow):
             action = self.collectMenu.addAction(icon, item[1])
             self.collectActions.append(action)
 
-        save = open(PQCOM_DATA_FILE, 'wb')
+        save = open(PQCOM_DATA_FILE, 'w')
         pickle.dump(self.collections, save)
         save.close()
 
@@ -362,7 +362,7 @@ class MainWindow(QMainWindow, main_ui.Ui_MainWindow):
         self.collectActions = []
         self.collectMenu.addAction('None')
 
-        save = open(PQCOM_DATA_FILE, 'wb')
+        save = open(PQCOM_DATA_FILE, 'w')
         save.close()
         pickle.dump(self.collections, save)
 
@@ -418,7 +418,7 @@ class MainWindow(QMainWindow, main_ui.Ui_MainWindow):
         self.input_history = ''
 
     def closeEvent(self, event):
-        save = open(PQCOM_DATA_FILE, 'wb')
+        save = open(PQCOM_DATA_FILE, 'w')
         pickle.dump(self.collections, save)
         save.close()
 
