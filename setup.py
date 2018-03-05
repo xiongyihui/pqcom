@@ -64,7 +64,7 @@ setup(
     # pip to create the appropriate form of executable for the target platform.
     entry_points={
         'gui_scripts': [
-            'pqcom=pqcom.pqcom:main',
+            'pqcom=pqcom.main:main',
         ],
     },
 )
