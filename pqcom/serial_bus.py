@@ -1,9 +1,15 @@
 
+import sys
+if sys.version_info[0] < 3:
+    import Queue
+else:
+    import queue as Queue
+
+import threading
+import logging
+
 import serial
 from serial.tools import list_ports
-import threading
-import Queue
-import logging
 
 PARITY_DICT = {'None': serial.PARITY_NONE, 'Even': serial.PARITY_EVEN,
                'Odd': serial.PARITY_ODD, 'Mask': serial.PARITY_MARK,
@@ -20,7 +26,7 @@ def get_ports():
 
     return ports
 
-class Serial(object):
+class SerialBus(object):
 
     def __init__(self, on_received, on_failed):
         self.notify = on_received

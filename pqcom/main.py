@@ -38,17 +38,22 @@ import sys
 import os
 import subprocess
 import threading
-import pqcom_serial
-import pqcom_translator as translator
-from pqcom_ui import *
-import pqcom_setup_ui
-import pqcom_about_ui
-from PySide.QtGui import *
-from PySide.QtCore import *
-from util import resource_path
-from PySide import QtSvg
 from time import sleep
 import pickle
+
+from PyQt5.QtGui import *
+from PyQt5.QtCore import *
+from PyQt5.QtWidgets import *
+from PyQt5.QtCore import pyqtSignal as Signal
+# from PyQt5 import QtSvg
+
+from . import serial_bus
+from . import pqcom_translator as translator
+from . import setup_ui
+from . import about_ui
+from . import main_ui
+from .util import resource_path
+
 
 PQCOM_DATA_FILE = os.path.join(os.path.expanduser('~'), '.pqcom_data')
 ICON_LIB = {'N': 'img/normal.svg', 'H': 'img/0x.svg', 'E': 'img/ex.svg'}
@@ -57,14 +62,14 @@ DEFAULT_EOF = '\n'
 serial = None
 
 
-class AboutDialog(QDialog, pqcom_about_ui.Ui_Dialog):
+class AboutDialog(QDialog, about_ui.Ui_Dialog):
     def __init__(self, parent=None):
         super(AboutDialog, self).__init__(parent)
         self.setupUi(self)
         self.setWindowFlags(self.windowFlags() ^ Qt.WindowContextHelpButtonHint)
 
 
-class SetupDialog(QDialog, pqcom_setup_ui.Ui_Dialog):
+class SetupDialog(QDialog, setup_ui.Ui_Dialog):
     def __init__(self, parent=None):
         super(SetupDialog, self).__init__(parent)
         self.setupUi(self)
@@ -73,19 +78,16 @@ class SetupDialog(QDialog, pqcom_setup_ui.Ui_Dialog):
         self.ports = None
         self.refresh()
 
-        self.portComboBox.clicked.connect(self.refresh)
+        # self.portComboBox.clicked.connect(self.refresh)
 
     def show(self, warning=False):
-        if warning:
-            self.portComboBox.setStyleSheet('QComboBox {color: red;}')
-        else:
-            self.refresh()
+        self.refresh()
 
         return self.exec_()
 
     def refresh(self):
-        self.portComboBox.setStyleSheet('QComboBox {color: black;}')
-        ports = pqcom_serial.get_ports()
+        # self.portComboBox.setStyleSheet('QComboBox {color: black;}')
+        ports = serial_bus.get_ports()
         if self.ports != ports:
             self.ports = ports
             for port in ports:
@@ -101,7 +103,7 @@ class SetupDialog(QDialog, pqcom_setup_ui.Ui_Dialog):
         return port, baud, bytebits, stopbits, parity
 
 
-class MainWindow(QMainWindow, Ui_MainWindow):
+class MainWindow(QMainWindow, main_ui.Ui_MainWindow):
     serial_failed = Signal()
     data_received = Signal()
 
@@ -111,7 +113,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.collections = []
         try:
-            saved = open(PQCOM_DATA_FILE, 'r')
+            saved = open(PQCOM_DATA_FILE, 'rb')
             self.collections = pickle.load(saved)
             saved.close()
         except IOError:
@@ -180,8 +182,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.collectButton.setIcon(QIcon(resource_path('img/star.svg')))
 
         self.collectMenu.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.connect(self.collectMenu, QtCore.SIGNAL('customContextMenuRequested(const QPoint&)'),
-                     self.on_collect_context_menu)
+        # self.connect(self.collectMenu, QtCore.SIGNAL('customContextMenuRequested(const QPoint&)'),
+                    #  self.on_collect_context_menu)
         self.collectContextMenu = QMenu(self)
         self.removeCollectionAction = QAction('Remove', self)
         self.removeAllCollectionsAction = QAction('Remove all', self)
@@ -208,13 +210,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.serial_failed.connect(self.handle_serial_error)
         self.data_received.connect(self.display)
 
-        QShortcut(QtGui.QKeySequence('Ctrl+Return'), self.sendPlainTextEdit, self.send)
+        QShortcut(QKeySequence('Ctrl+Return'), self.sendPlainTextEdit, self.send)
 
         # self.extendRadioButton.setVisible(False)
         self.periodSpinBox.setVisible(False)
 
     def new(self):
-        save = open(PQCOM_DATA_FILE, 'w')
+        save = open(PQCOM_DATA_FILE, 'wb')
         pickle.dump(self.collections, save)
         save.close()
 
@@ -350,7 +352,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             action = self.collectMenu.addAction(icon, item[1])
             self.collectActions.append(action)
 
-        save = open(PQCOM_DATA_FILE, 'w')
+        save = open(PQCOM_DATA_FILE, 'wb')
         pickle.dump(self.collections, save)
         save.close()
 
@@ -360,7 +362,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.collectActions = []
         self.collectMenu.addAction('None')
 
-        save = open(PQCOM_DATA_FILE, 'w')
+        save = open(PQCOM_DATA_FILE, 'wb')
         save.close()
         pickle.dump(self.collections, save)
 
@@ -416,7 +418,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.input_history = ''
 
     def closeEvent(self, event):
-        save = open(PQCOM_DATA_FILE, 'w')
+        save = open(PQCOM_DATA_FILE, 'wb')
         pickle.dump(self.collections, save)
         save.close()
 
@@ -453,7 +455,7 @@ def main():
 
     app = QApplication(sys.argv)
     window = MainWindow()
-    serial = pqcom_serial.Serial(window.on_data_received, window.on_serial_failed)
+    serial = serial_bus.SerialBus(window.on_data_received, window.on_serial_failed)
 
     window.show()
     window.setup()
