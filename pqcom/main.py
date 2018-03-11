@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """
 +------------------------------------------------------------------+
@@ -231,7 +231,7 @@ class MainWindow(QMainWindow, main_ui.Ui_MainWindow):
 
     def send(self):
         if self.repeatCheckBox.isChecked():
-            if str(self.sendButton.text()) == 'Stop':
+            if self.sendButton.text().find('Stop') >= 0:
                 self.repeater.stop()
                 self.sendButton.setText('Start')
                 return
