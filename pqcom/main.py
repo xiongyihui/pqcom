@@ -55,7 +55,7 @@ from . import main_ui
 from .util import resource_path
 
 
-PQCOM_DATA_FILE = os.path.join(os.path.expanduser('~'), '.pqcom_data')
+PQCOM_DATA_FILE = os.path.join(os.path.expanduser('~'), '.pqcom_data3')
 ICON_LIB = {'N': 'img/normal.svg', 'H': 'img/0x.svg', 'E': 'img/ex.svg'}
 
 DEFAULT_EOF = '\n'
@@ -75,21 +75,25 @@ class SetupDialog(QDialog, setup_ui.Ui_Dialog):
         self.setupUi(self)
         self.setWindowFlags(self.windowFlags() ^ Qt.WindowContextHelpButtonHint)
 
-        self.ports = None
+        self.ports = []
         self.refresh()
 
-        # self.portComboBox.clicked.connect(self.refresh)
+        self.portComboBox.clicked.connect(self.refresh)
 
     def show(self, warning=False):
-        self.refresh()
+        if warning:
+            self.portComboBox.setStyleSheet('QComboBox {color: red;}')
+        else:
+            self.refresh()
 
         return self.exec_()
 
     def refresh(self):
-        # self.portComboBox.setStyleSheet('QComboBox {color: black;}')
+        self.portComboBox.setStyleSheet('QComboBox {color: black;}')
         ports = serial_bus.get_ports()
-        if self.ports != ports:
+        if ports != self.ports:
             self.ports = ports
+            self.portComboBox.clear()
             for port in ports:
                 self.portComboBox.addItem(port)
 

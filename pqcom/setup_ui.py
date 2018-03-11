@@ -4,9 +4,12 @@
 #
 # Created by: PyQt5 UI code generator 5.9.2
 #
-# WARNING! All changes made in this file will be lost!
+# Use customized ComboBox for port selection
+# Changed by Yihui Xiong
+#
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+from .combobox import ComboBox
 
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
@@ -20,7 +23,7 @@ class Ui_Dialog(object):
         self.label = QtWidgets.QLabel(Dialog)
         self.label.setObjectName("label")
         self.formLayout.setWidget(0, QtWidgets.QFormLayout.LabelRole, self.label)
-        self.portComboBox = QtWidgets.QComboBox(Dialog)
+        self.portComboBox = ComboBox(Dialog)
         self.portComboBox.setEditable(True)
         self.portComboBox.setObjectName("portComboBox")
         self.formLayout.setWidget(0, QtWidgets.QFormLayout.FieldRole, self.portComboBox)

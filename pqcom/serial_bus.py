@@ -24,6 +24,8 @@ def get_ports():
                 port.startswith('/dev/cu.')):
             ports.append(port)
 
+    ports.sort()
+
     return ports
 
 class SerialBus(object):
