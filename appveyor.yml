@@ -22,9 +22,11 @@ environment:
     - PYTHON: "C:\\Miniconda"
       PYTHON_VERSION: "3.5"
       PYTHON_ARCH: "32"
+      USE_QT_API: "PyQt5"
     - PYTHON: "C:\\Miniconda-x64"
       PYTHON_VERSION: "3.5"
       PYTHON_ARCH: "64"
+      USE_QT_API: "PyQt5"
 
 
 init:
@@ -47,7 +49,9 @@ install:
   # Install the build dependencies of the project.
   - "pip install wheel"
   - "pip install pyserial"
-  - "pip install pyqt5"
+  # Install the selected Qt version
+  - if "%USE_QT_API%" == "PyQt5" conda install qt=5.* pyqt=5.*
+  - if "%USE_QT_API%" == "PyQt4" conda install qt=4.* pyqt=4.*
   # Install pyinstaller (includes dependency for pywin32)
   #- "%WITH_COMPILER% pip install pypiwin32"
   - "%WITH_COMPILER% pip install pyinstaller"
