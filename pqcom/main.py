@@ -215,6 +215,15 @@ class MainWindow(QMainWindow, main_ui.Ui_MainWindow):
 
         QShortcut(QKeySequence('Ctrl+Return'), self.sendPlainTextEdit, self.send)
 
+        def gen_shortcut_callback(n):
+            def on_shortcut():
+                self.send_collection(n - 1)
+
+            return on_shortcut
+
+        for i in range(1, 10):
+            QShortcut(QKeySequence('Ctrl+' + str(i)), self, gen_shortcut_callback(i))
+
         # self.extendRadioButton.setVisible(False)
         self.periodSpinBox.setVisible(False)
 
@@ -299,6 +308,7 @@ class MainWindow(QMainWindow, main_ui.Ui_MainWindow):
 
         self.sendPlainTextEdit.clear()
         self.sendPlainTextEdit.insertPlainText(raw)
+        self.send()
 
     def collect(self):
         if not self.collections:
@@ -328,17 +338,21 @@ class MainWindow(QMainWindow, main_ui.Ui_MainWindow):
             index = self.collectActions.index(action)
         except ValueError:
             return
+        self.send_collection(index)
 
-        form, raw = self.collections[index]
-        if form == 'H':
-            self.hexRadioButton.setChecked(True)
-        elif form == 'E':
-            self.extendRadioButton.setChecked(True)
-        else:
-            self.normalRadioButton.setChecked(True)
+    def send_collection(self, index):
+        if len(self.collections) > index:
+            form, raw = self.collections[index]
+            if form == 'H':
+                self.hexRadioButton.setChecked(True)
+            elif form == 'E':
+                self.extendRadioButton.setChecked(True)
+            else:
+                self.normalRadioButton.setChecked(True)
 
-        self.sendPlainTextEdit.clear()
-        self.sendPlainTextEdit.insertPlainText(raw)
+            self.sendPlainTextEdit.clear()
+            self.sendPlainTextEdit.insertPlainText(raw)
+            self.send()
 
     def remove_collection(self):
         try:
@@ -370,6 +384,9 @@ class MainWindow(QMainWindow, main_ui.Ui_MainWindow):
         pickle.dump(self.collections, save)
 
     def on_serial_failed(self):
+        if self.sendButton.text().find('Stop') >= 0:
+            self.repeater.stop()
+            self.sendButton.setText('Start')
         self.serial_failed.emit()
 
     def handle_serial_error(self):
