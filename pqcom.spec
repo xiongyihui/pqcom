@@ -4,7 +4,7 @@ import platform
 
 name = 'pqcom' + platform.architecture()[0][:2] + '.exe'
 
-a = Analysis(['pqcom/pqcom.py'],
+a = Analysis(['pqcom/main.py'],
              pathex=['pqcom'],
              hiddenimports=[],
              hookspath=None,
