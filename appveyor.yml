@@ -20,10 +20,10 @@ environment:
   # https://github.com/appveyor/ci/issues/359
   matrix:
     - PYTHON: "C:\\Miniconda"
-      PYTHON_VERSION: "2.7"
+      PYTHON_VERSION: "3.5"
       PYTHON_ARCH: "32"
     - PYTHON: "C:\\Miniconda-x64"
-      PYTHON_VERSION: "2.7"
+      PYTHON_VERSION: "3.5"
       PYTHON_ARCH: "64"
 
 
@@ -47,7 +47,7 @@ install:
   # Install the build dependencies of the project.
   - "pip install wheel"
   - "pip install pyserial"
-  - "pip install pyside"
+  - "pip install pyqt5"
   # Install pyinstaller (includes dependency for pywin32)
   #- "%WITH_COMPILER% pip install pypiwin32"
   - "%WITH_COMPILER% pip install pyinstaller"
