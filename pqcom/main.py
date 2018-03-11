@@ -41,10 +41,9 @@ import threading
 from time import sleep
 import pickle
 
-from PyQt5.QtGui import *
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtCore import pyqtSignal as Signal
+from PyQt5.QtGui import QIcon, QKeySequence, QTextCursor
+from PyQt5.QtWidgets import QApplication, QMainWindow, QDialog, QAction, QActionGroup, QMenu, QShortcut
+from PyQt5.QtCore import Qt, pyqtSignal as Signal
 # from PyQt5 import QtSvg
 
 from . import serial_bus
@@ -393,6 +392,9 @@ class MainWindow(QMainWindow, main_ui.Ui_MainWindow):
             serial.start(port, baud, bytebits, stopbits, parity)
             self.setWindowTitle('pqcom - ' + port + ' ' + str(baud) + ' opened')
         else:
+            if self.sendButton.text().find('Stop') >= 0:
+                self.repeater.stop()
+                self.sendButton.setText('Start')
             serial.join()
             self.setWindowTitle('pqcom - ' + port + ' ' + str(baud) + ' closed')
 
