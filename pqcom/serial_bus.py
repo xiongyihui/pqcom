@@ -85,7 +85,7 @@ class SerialBus(object):
             try:
                 data = self.tx_queue.get(True, 1)
                 logging.info('tx:' + data)
-                self.serial.write(data)
+                self.serial.write(data.encode())
             except Queue.Empty:
                 continue
             except IOError as e:
@@ -103,6 +103,7 @@ class SerialBus(object):
                 data = self.serial.read(1024)
 
                 if data and len(data) > 0:
+                    data = data.decode()
                     logging.info('rx:' + data)
                     self.rx_queue.put(data)
                     if self.notify:
