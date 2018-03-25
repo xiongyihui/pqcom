@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'pqcom.ui'
+# Form implementation generated from reading ui file 'pqcom/main.ui'
 #
 # Created by: PyQt5 UI code generator 5.9.2
 #
@@ -11,7 +11,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(640, 504)
+        MainWindow.resize(643, 504)
         MainWindow.setBaseSize(QtCore.QSize(640, 504))
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
@@ -126,11 +126,15 @@ class Ui_MainWindow(object):
         self.actionAbout.setObjectName("actionAbout")
         self.actionClear = QtWidgets.QAction(MainWindow)
         self.actionClear.setObjectName("actionClear")
+        self.actionPin = QtWidgets.QAction(MainWindow)
+        self.actionPin.setCheckable(True)
+        self.actionPin.setObjectName("actionPin")
         self.toolBar.addAction(self.actionNew)
         self.toolBar.addAction(self.actionRun)
         self.toolBar.addAction(self.actionSetup)
         self.toolBar.addAction(self.actionHex)
         self.toolBar.addAction(self.actionClear)
+        self.toolBar.addAction(self.actionPin)
         self.toolBar.addAction(self.actionAbout)
 
         self.retranslateUi(MainWindow)
@@ -147,9 +151,9 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "pqcom"))
-        self.normalRadioButton.setText(_translate("MainWindow", "Normal"))
+        self.normalRadioButton.setText(_translate("MainWindow", "Norma&l"))
         self.hexRadioButton.setText(_translate("MainWindow", "Hex"))
-        self.extendRadioButton.setText(_translate("MainWindow", "Extended"))
+        self.extendRadioButton.setText(_translate("MainWindow", "E&xtended"))
         self.historyButton.setText(_translate("MainWindow", "History"))
         self.periodSpinBox.setSuffix(_translate("MainWindow", "s"))
         self.repeatCheckBox.setText(_translate("MainWindow", "Repeat"))
@@ -165,4 +169,6 @@ class Ui_MainWindow(object):
         self.actionAbout.setText(_translate("MainWindow", "About"))
         self.actionClear.setText(_translate("MainWindow", "Clear"))
         self.actionClear.setToolTip(_translate("MainWindow", "Clear"))
+        self.actionPin.setText(_translate("MainWindow", "Pin"))
+        self.actionPin.setToolTip(_translate("MainWindow", "Stay On Top"))
 

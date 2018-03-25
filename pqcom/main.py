@@ -114,8 +114,6 @@ class MainWindow(QMainWindow, main_ui.Ui_MainWindow):
         super(MainWindow, self).__init__(parent)
         self.setupUi(self)
 
-        self.setWindowFlags(Qt.WindowStaysOnTopHint)
-
         self.collections = []
         try:
             saved = open(PQCOM_DATA_FILE, 'rb')
@@ -141,6 +139,7 @@ class MainWindow(QMainWindow, main_ui.Ui_MainWindow):
         self.actionRun.setIcon(QIcon(resource_path('img/run.svg')))
         self.actionHex.setIcon(QIcon(resource_path('img/hex.svg')))
         self.actionClear.setIcon(QIcon(resource_path('img/clear.svg')))
+        self.actionPin.setIcon(QIcon(resource_path('img/pin.svg')))
         self.actionAbout.setIcon(QIcon(resource_path('img/about.svg')))
 
         self.actionUseCR = QAction('EOL - \\r', self)
@@ -207,6 +206,7 @@ class MainWindow(QMainWindow, main_ui.Ui_MainWindow):
         self.actionRun.toggled.connect(self.run)
         self.actionHex.toggled.connect(self.convert)
         self.actionClear.triggered.connect(self.clear)
+        self.actionPin.toggled.connect(self.pin)
         self.actionAbout.triggered.connect(self.aboutDialog.show)
         self.outputHistoryMenu.triggered.connect(self.on_history_item_clicked)
         self.collectButton.clicked.connect(self.collect)
@@ -437,6 +437,14 @@ class MainWindow(QMainWindow, main_ui.Ui_MainWindow):
         self.recvTextEdit.clear()
         self.recvTextEdit.insertPlainText(text)
         self.recvTextEdit.moveCursor(QTextCursor.End)
+
+    def pin(self, is_true):
+        if is_true:
+            self.setWindowFlags(self.windowFlags() | Qt.WindowStaysOnTopHint)
+        else:
+            self.setWindowFlags(self.windowFlags() & ~Qt.WindowStaysOnTopHint)
+
+        self.show()
 
     def clear(self):
         self.recvTextEdit.clear()

@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>640</width>
+    <width>643</width>
     <height>504</height>
    </rect>
   </property>
@@ -24,7 +24,16 @@
     <property name="spacing">
      <number>0</number>
     </property>
-    <property name="margin">
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
      <number>0</number>
     </property>
     <item>
@@ -95,7 +104,7 @@
       <item>
        <widget class="QRadioButton" name="normalRadioButton">
         <property name="text">
-         <string>Normal</string>
+         <string>Norma&amp;l</string>
         </property>
         <property name="checked">
          <bool>true</bool>
@@ -112,7 +121,7 @@
       <item>
        <widget class="QRadioButton" name="extendRadioButton">
         <property name="text">
-         <string>Extended</string>
+         <string>E&amp;xtended</string>
         </property>
        </widget>
       </item>
@@ -249,6 +258,7 @@
    <addaction name="actionSetup"/>
    <addaction name="actionHex"/>
    <addaction name="actionClear"/>
+   <addaction name="actionPin"/>
    <addaction name="actionAbout"/>
   </widget>
   <action name="actionSetup">
@@ -300,6 +310,17 @@
    </property>
    <property name="toolTip">
     <string>Clear</string>
+   </property>
+  </action>
+  <action name="actionPin">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Pin</string>
+   </property>
+   <property name="toolTip">
+    <string>Stay On Top</string>
    </property>
   </action>
  </widget>
