@@ -9,7 +9,7 @@
 #
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-from .combobox import ComboBox
+from pqcom.combobox import ComboBox
 
 class Ui_Dialog(object):
     def setupUi(self, Dialog):

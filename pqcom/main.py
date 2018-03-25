@@ -46,12 +46,12 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QDialog, QAction, QAction
 from PyQt5.QtCore import Qt, pyqtSignal as Signal
 # from PyQt5 import QtSvg
 
-from . import serial_bus
-from . import pqcom_translator as translator
-from . import setup_ui
-from . import about_ui
-from . import main_ui
-from .util import resource_path
+from pqcom import serial_bus
+from pqcom import pqcom_translator as translator
+from pqcom import setup_ui
+from pqcom import about_ui
+from pqcom import main_ui
+from pqcom.util import resource_path
 
 
 PQCOM_DATA_FILE = os.path.join(os.path.expanduser('~'), '.pqcom_data3')
@@ -113,6 +113,8 @@ class MainWindow(QMainWindow, main_ui.Ui_MainWindow):
     def __init__(self, parent=None):
         super(MainWindow, self).__init__(parent)
         self.setupUi(self)
+
+        self.setWindowFlags(Qt.WindowStaysOnTopHint)
 
         self.collections = []
         try:
