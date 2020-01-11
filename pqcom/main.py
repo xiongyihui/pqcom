@@ -146,9 +146,9 @@ class MainWindow(QMainWindow, main_ui.Ui_MainWindow):
         self.actionUseCR.setCheckable(True)
         self.actionUseLF = QAction('EOL - \\n', self)
         self.actionUseLF.setCheckable(True)
+        self.actionUseLF.setChecked(True)
         self.actionUseCRLF = QAction('EOL - \\r\\n', self)
         self.actionUseCRLF.setCheckable(True)
-        self.actionUseCRLF.setChecked(True)
         eolGroup = QActionGroup(self)
         eolGroup.addAction(self.actionUseCR)
         eolGroup.addAction(self.actionUseLF)
@@ -157,6 +157,7 @@ class MainWindow(QMainWindow, main_ui.Ui_MainWindow):
 
         self.actionAppendEol = QAction('Append extra EOL', self)
         self.actionAppendEol.setCheckable(True)
+        self.actionAppendEol.setChecked(True)
 
         popupMenu = QMenu(self)
         popupMenu.addAction(self.actionUseCR)
