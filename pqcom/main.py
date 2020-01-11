@@ -269,7 +269,7 @@ class MainWindow(QMainWindow, main_ui.Ui_MainWindow):
             self.sendButton.setText('Stop')
         else:
             serial.write(data)
-
+            self.sendPlainTextEdit.clear()
         # record history
         record = [form, raw, data]
         if record in self.output_history:
