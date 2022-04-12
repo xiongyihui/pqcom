@@ -46,12 +46,12 @@ from PySide6.QtWidgets import QApplication, QMainWindow, QDialog, QMenu
 from PySide6.QtCore import Qt, Signal
 # from PySide6 import QtSvg
 
-import serial_bus
-import pqcom_translator as translator
-import setup_ui
-import about_ui
-import main_ui
-from util import resource_path
+from . import serial_bus
+from . import pqcom_translator as translator
+from . import setup_ui
+from . import about_ui
+from . import main_ui
+from .util import resource_path
 
 
 PQCOM_DATA_FILE = os.path.join(os.path.expanduser('~'), '.pqcom_data3')
