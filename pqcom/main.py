@@ -41,17 +41,17 @@ import threading
 from time import sleep
 import pickle
 
-from PyQt5.QtGui import QIcon, QKeySequence, QTextCursor
-from PyQt5.QtWidgets import QApplication, QMainWindow, QDialog, QAction, QActionGroup, QMenu, QShortcut
-from PyQt5.QtCore import Qt, pyqtSignal as Signal
-# from PyQt5 import QtSvg
+from PySide6.QtGui import QIcon, QKeySequence, QTextCursor, QAction, QActionGroup, QShortcut
+from PySide6.QtWidgets import QApplication, QMainWindow, QDialog, QMenu
+from PySide6.QtCore import Qt, Signal
+# from PySide6 import QtSvg
 
-from pqcom import serial_bus
-from pqcom import pqcom_translator as translator
-from pqcom import setup_ui
-from pqcom import about_ui
-from pqcom import main_ui
-from pqcom.util import resource_path
+import serial_bus
+import pqcom_translator as translator
+import setup_ui
+import about_ui
+import main_ui
+from util import resource_path
 
 
 PQCOM_DATA_FILE = os.path.join(os.path.expanduser('~'), '.pqcom_data3')
@@ -85,7 +85,7 @@ class SetupDialog(QDialog, setup_ui.Ui_Dialog):
         else:
             self.refresh()
 
-        return self.exec_()
+        return self.exec()
 
     def refresh(self):
         self.portComboBox.setStyleSheet('QComboBox {color: black;}')
@@ -492,7 +492,7 @@ def main():
 
     window.show()
     window.setup()
-    app.exec_()
+    app.exec()
     serial.join()
     sys.exit(0)
 

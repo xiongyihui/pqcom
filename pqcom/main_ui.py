@@ -6,7 +6,7 @@
 #
 # WARNING! All changes made in this file will be lost!
 
-from PyQt5 import QtCore, QtGui, QtWidgets
+from PySide6 import QtCore, QtGui, QtWidgets
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -26,8 +26,9 @@ class Ui_MainWindow(object):
         sizePolicy.setHeightForWidth(self.recvTextEdit.sizePolicy().hasHeightForWidth())
         self.recvTextEdit.setSizePolicy(sizePolicy)
         font = QtGui.QFont()
-        font.setFamily("Droid Sans Mono")
-        self.recvTextEdit.setFont(font)
+        font.setFamily("Mono")
+        # self.recvTextEdit.setFont(font)
+        self.recvTextEdit.setFontFamily("Mono")
         self.recvTextEdit.setReadOnly(True)
         self.recvTextEdit.setObjectName("recvTextEdit")
         self.verticalLayout.addWidget(self.recvTextEdit)
@@ -111,22 +112,22 @@ class Ui_MainWindow(object):
         self.toolBar.setFloatable(False)
         self.toolBar.setObjectName("toolBar")
         MainWindow.addToolBar(QtCore.Qt.TopToolBarArea, self.toolBar)
-        self.actionSetup = QtWidgets.QAction(MainWindow)
+        self.actionSetup = QtGui.QAction(MainWindow)
         self.actionSetup.setObjectName("actionSetup")
-        self.actionNew = QtWidgets.QAction(MainWindow)
+        self.actionNew = QtGui.QAction(MainWindow)
         self.actionNew.setObjectName("actionNew")
-        self.actionHex = QtWidgets.QAction(MainWindow)
+        self.actionHex = QtGui.QAction(MainWindow)
         self.actionHex.setCheckable(True)
         self.actionHex.setVisible(True)
         self.actionHex.setObjectName("actionHex")
-        self.actionRun = QtWidgets.QAction(MainWindow)
+        self.actionRun = QtGui.QAction(MainWindow)
         self.actionRun.setCheckable(True)
         self.actionRun.setObjectName("actionRun")
-        self.actionAbout = QtWidgets.QAction(MainWindow)
+        self.actionAbout = QtGui.QAction(MainWindow)
         self.actionAbout.setObjectName("actionAbout")
-        self.actionClear = QtWidgets.QAction(MainWindow)
+        self.actionClear = QtGui.QAction(MainWindow)
         self.actionClear.setObjectName("actionClear")
-        self.actionPin = QtWidgets.QAction(MainWindow)
+        self.actionPin = QtGui.QAction(MainWindow)
         self.actionPin.setCheckable(True)
         self.actionPin.setObjectName("actionPin")
         self.toolBar.addAction(self.actionNew)

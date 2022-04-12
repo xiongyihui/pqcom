@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from PyQt5 import QtCore, QtWidgets
+from PySide6 import QtCore, QtWidgets
 
 class ComboBox(QtWidgets.QComboBox):
-    clicked = QtCore.pyqtSignal()
+    clicked = QtCore.Signal()
 
     def showPopup(self):
         self.clicked.emit()
